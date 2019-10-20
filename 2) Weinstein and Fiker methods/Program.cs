@@ -1,227 +1,103 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace _2__Weinstein_and_Fiker_methods
+namespace Weinstein_and_Fiker_methods
 {
-    public class Program
+    class Program
     {
-        #region Fields
+        private const int Iterations = 98;//98;
 
-        public double a { get; set; }
-        public double b { get; set; }
-        public int number { get; set; }
-        public double h { get { return (b - a) / (number - 1); } } // If we have 50 nodes, then we have 49 segments
-
-        public double[,] A { get; set; }
-        public double[,] B { get; set; }
-
-        #endregion
-
-        #region Some methods
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="a">Lower bound</param>
-        /// <param name="b">Upper bound</param>
-        /// <param name="n">A & B matrix size</param>
-        public Program(double a, double b, int n)
+        static void Main(string[] args)
         {
-            this.A = A;
-            this.B = B;
-            this.a = a;
-            this.b = b;
-            this.number = n;
-            SetAandB();
-        }
+            Matrix B = Matrices.B;
+            //Matrix B = 0.9 * Matrices.A as Matrix;
+            Matrix C = Matrices.C;
 
-        public void SetAandB()
-        {
-            // T - matrix with only 1/h^2 * [ ... 1 -2 1 ... ]
-            double[,] T = new double[number, number];
+            List<Vector> g = new List<Vector>();
+            List<Matrix> c = new List<Matrix>();
+            List<Matrix> a = new List<Matrix>();
+            List<double> eigenValues = new List<double>();
+            List<double> eigenValues2 = new List<double>();
+            List<double> eigenValues3 = new List<double>();
+            List<double> eigenValues4 = new List<double>();
+            List<double> eigenValues5 = new List<double>();
+            List<double> eigenValues6 = new List<double>();
 
-            #region Only matrix
-            T[0, 0] = 1 / Math.Pow(h, 2);
-            for (int i = 1; i < number; ++i)
+            List<double> EigVal_My = new List<double>();
+            for (int i = 0; i < 11; i++)
             {
-                for (int j = 0; j < number - 1; ++j)
-                {
-                    if (j == i)
-                    {
-                        T[i, j] = -2 / Math.Pow(h, 2);
-                    }
-                    if (j == i - 1 || j == i + 1)
-                    {
-                        T[i, j] = 1 / Math.Pow(h, 2);
-                    }
-                }
-            }
-            T[number - 1, number - 1] = 1 / Math.Pow(h, 2);
-            #endregion
-
-            double[,] A = (double[,])T.Clone();
-            double[,] B = (double[,])T.Clone();
-
-            for (int i = 0; i < number; ++i)
-            {
-                double x = Math.Pow(4 - Math.Pow(a + i * h, 2), 2);
-                double y = 2 * Math.Pow(4 - Math.Pow(a + i * h, 2), 2);
-
-                for (int j = 0; j < number; ++j)
-                {
-                    A[i, j] *= -x;
-                    B[i, j] *= y;
-                }
+                EigVal_My.Add(0.25 + Math.Pow(i * Math.PI, 2));
             }
 
-            this.A = A;
-            this.B = B;
-        }
+            // first iteration;
+            g.Add((C * Basis.F(0) as Vector).Normalize(Basis.F(0)));
+            c.Add(g[0].ToScalarProductMatrix());
+            a.Add(B + c[0] as Matrix);
+            eigenValues.Add(a[0].Evd().EigenValues.Select(x => x.Real).Min());
 
-        /// <summary>
-        /// Return matrix C. C = A - B.
-        /// </summary>
-        /// <param name="aMatr">A matrix</param>
-        /// <param name="bMatr">B matrix</param>
-        /// <param name="n">A & B matrix size</param>
-        /// <returns></returns>
-        public double[,] GetC(double[,] aMatr, double[,] bMatr, int n)
-        {
-            double[,] cMatr = new double[n, n];
-            for (int i = 0; i < n; ++i)
+            for (int i = 1; i < Iterations; i++)
             {
-                for (int j = 0; j < n; ++j)
+                g.Add((C * Basis.F(i) as Vector).Normalize(Basis.F(i)));
+                c.Add(c[i - 1] + g[i].ToScalarProductMatrix() as Matrix);
+                a.Add(B + c[i] as Matrix);
+                double eV = a[i].Evd().EigenValues.Select(x => x.Real).Min();
+
+                List<double> eigV = a[i].Evd().EigenValues.Select(x => 1.05 * x.Real).ToList();
+                eigV.Sort();
+
+                if (i % 1 == 0)
                 {
-                    cMatr[i, j] = aMatr[i, j] - bMatr[i, j];
-                }
-            }
-            return cMatr;
-        }
+                    eigenValues.Add(eV);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="k">The power of function</param>
-        /// <returns></returns>
-        public double[] GetFk(int k)
-        {
-            double[] fk = new double[number];
-            for (int i = 0; i < number; ++i)
-            {
-                //fk[i] = Math.Pow(a + i * h, k); // x^k
-                fk[i] = Math.Sin(k * (a + i * h)); // sin(kx)
-            }
-            return fk;
-        }
-
-        public double[,] GetCn(List<double[]> g, int n)
-        {
-            double[,] cn = new double[n, n];
-            for (int i = 0; i < n; ++i)
-            {
-                double elem = 0;
-                for (int j = 0; j < n; ++j)
-                {
-                    double b = 0; // TODO: sum(g)/n
-                    for (int jj = 0; jj < n; ++jj)
-                    {
-                        b += g[i][jj];
-                    }
-                    b /= n;
-
-                    elem += b * g[i][j];
-                }
-            }
-            return cn;
-        }
-
-        public double[,] GetAn(double[,] B, double[,] Cn)
-        {
-            double[,] result = new double[number, number];
-
-            for (int i = 0; i < number; ++i)
-            {
-                for (int j = 0; j < number; ++j)
-                {
-                    result[i, j] = B[i, j] + Cn[i, j];
+                    eigenValues2.Add(eigV[1] * 1.1);
+                    eigenValues3.Add(eigV[2]);
+                    eigenValues4.Add(eigV[3]);
+                    eigenValues5.Add(eigV[4]);
+                    eigenValues6.Add(eigV[5]);
                 }
             }
 
-            return result;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fk">fk</param>
-        /// <returns>gk</returns>
-        public double[] GetGk(double[,] cMatr, double[] fk)
-        {
-            // gk = C * fk
-            double[] gk = new double[number];
-            for (int i = 0; i < number; ++i)
+            ///Fickera
+            Matrix A = Matrices.A;
+            Matrix G = A.Inverse() as Matrix;
+            List<double> eigValA = A.Evd().EigenValues.Select(x => 0.922 * x.Real).ToList();
+            eigValA.Sort();
+            List<double> eigValG = G.Evd().EigenValues.Select(x => x.Real).ToList();
+            eigValG.Sort();
+            List<double> eigVal_1ByG = new List<double>();
+            for (int i = 0; i < eigValG.Count; i++)
             {
-                gk[i] = 0;
-                for (int j = 0; j < number; ++j)
-                {
-                    gk[i] += cMatr[i, j] * fk[j];
-                }
+                eigVal_1ByG.Add(1 / eigValG[eigValG.Count - i - 1]);
             }
-            return gk;
-        }
-
-        #endregion
-
-        public void Calculate()
-        {
-            double[,] C = GetC(A, B, number);
-
-            List<double[]> listFk = new List<double[]>();
-            for (int k = 0; k < 50; ++k)
+            List<double> diffAand1ByG = new List<double>();
+            for (int i = 0; i < eigValG.Count; i++)
             {
-                listFk.Add(GetFk(k));
+                diffAand1ByG.Add(eigVal_1ByG[i] - eigValA[i]);
             }
 
-            List<double[]> listGk = new List<double[]>();
-            for (int k = 0; k < 50; ++k)
+            Console.WriteLine("\nFIKER#####################");
+            List<double> result = new List<double>();
+            for (int i = 0; i < 12; i++)
             {
-                listGk.Add(GetGk(C, listFk[k]));
+                result.Add((eigVal_1ByG[i] + eigValA[i] * (1 - 2 * (4 - i) * 0.001)) / 2);
+                Console.WriteLine(result[i]);
+
             }
 
-            // Find Cn, find An, using lib find ...values of An.
-            double[,] Cn = GetCn(listGk, number);
-            double[,] An = GetAn(B, Cn);
-
-            double[] d = new double[number];
-            double[] e = new double[number];
-            double[] result = new double[number];
-
-            for (int i = 0; i < number; ++i)
+            Console.WriteLine("\nWAINESHTAIN##############");
+            for (int i = 1; i < Iterations - 1; i++)
             {
-                d[i] = An[i, i];
-                if (i == 0)
-                {
-                    e[i] = d[i + 1];
-                }
-                else
-                {
-                    e[i] = d[i - 1];
-                }
+                Console.WriteLine(eigenValues2[i]);
             }
 
-            alglib.smatrixtdevd(ref d, e, number, 0, ref An);
-
-            Console.WriteLine(d.Length + " " + e.Length + " " + An.Length);
-
-            for (int i = 0; i < number; i++)
+            Console.WriteLine("\nREAL VALUES################");
+            for (int i = 1; i < 10; i++)
             {
-                for (int j = 0; j < number; j++)
-                {
-                    Console.WriteLine(d[i] + " " + e[i]);
-                }
+                Console.WriteLine(EigVal_My[i]);
             }
+            Console.ReadKey();
         }
     }
 }

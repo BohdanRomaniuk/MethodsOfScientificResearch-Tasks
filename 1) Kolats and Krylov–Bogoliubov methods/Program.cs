@@ -4,26 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace _1_Kolats_and_KrylovBogoliubov_methods
+namespace Kolats_and_KrylovBogoliubov_methods
 {
     class Program
     {
         private const double left = 0;
         private const double right = 1;
-        private const int size = 10; // size > 5
+        private const int size = 100; // size > 5
         private const double h = (right - left) / (size - 1);
-        private const double l2 = 1.43589;
+        private const double l2 = 540;
 
         private static Matrix CreateMatrix()
         {
             var matrix = new DenseMatrix(size, size);
             for (int i = 0; i < size; ++i)
             {
-                matrix[i, i] = -2;
+                matrix[i, i] = -2 / (h * h);
                 if (i + 1 < size)
                 {
-                    matrix[i, i + 1] = 1;
-                    matrix[i + 1, i] = 1;
+                    matrix[i, i + 1] = 1 / (h * h);
+                    matrix[i + 1, i] = 1 / (h * h);
                 }
             }
             return matrix;
@@ -35,6 +35,8 @@ namespace _1_Kolats_and_KrylovBogoliubov_methods
             for (int i = 0; i < size; ++i)
             {
                 vector[i] = 1;
+                var val = left + (i * h);
+                vector[i] = -((9 + val * val) * (9 + val * val));
             }
             return vector;
         }
@@ -55,16 +57,16 @@ namespace _1_Kolats_and_KrylovBogoliubov_methods
             List<Vector> f = new List<Vector>();
             f.Add(GetInitialF());
 
-            Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
-            for (int i = 0; i < size; ++i)
-            {
-                for (int j = 0; j < size; ++j)
-                {
-                    Console.Write($"{T[i, j],-5}{(j == size - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine();
+            //Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
+            //for (int i = 0; i < size; ++i)
+            //{
+            //    for (int j = 0; j < size; ++j)
+            //    {
+            //        Console.Write($"{T[i, j],-5}{(j == size - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
+            //    }
+            //    Console.WriteLine();
+            //}
+            //Console.WriteLine();
 
             //Iterations count
             int itersCount = 15;
@@ -83,7 +85,6 @@ namespace _1_Kolats_and_KrylovBogoliubov_methods
             for (int i = 0; i < itersCount; ++i)
             {
                 a[i] = Integrate(f[0], f[i]);
-
             }
 
             // μ calculation
