@@ -10,6 +10,7 @@ namespace _2__Weinstein_and_Fiker_methods
     {
         static void Main(string[] args)
         {
+
         }
     }
 }

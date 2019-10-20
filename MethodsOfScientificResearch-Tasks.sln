@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1) Kolats and Krylov–Bogoliubov methods", "MethodsOfScientificResearch-Tasks\1) Kolats and Krylov–Bogoliubov methods.csproj", "{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1) Kolats and Krylov–Bogoliubov methods", "1) Kolats and Krylov–Bogoliubov methods\1) Kolats and Krylov–Bogoliubov methods.csproj", "{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2) Weinstein and Fiker methods", "2) Weinstein and Fiker methods\2) Weinstein and Fiker methods.csproj", "{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}"
 EndProject
