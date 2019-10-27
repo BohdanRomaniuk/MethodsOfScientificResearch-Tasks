@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1) Kolats and Krylov–Bogoliubov methods", "1) Kolats and Krylov–Bogoliubov methods\1) Kolats and Krylov–Bogoliubov methods.csproj", "{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2) Kolats and Krylov–Bogoliubov methods", "1) Kolats and Krylov–Bogoliubov methods\2) Kolats and Krylov–Bogoliubov methods.csproj", "{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2) Weinstein and Fiker methods", "2) Weinstein and Fiker methods\2) Weinstein and Fiker methods.csproj", "{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3) Weinstein method", "2) Test\3) Weinstein method.csproj", "{60DEEF37-2EB3-471E-9A15-3E5039FF4AC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4) Fiker method", "4.1) Test\4) Fiker method.csproj", "{59D96856-D73E-4C88-A8AC-FE7A43E3A873}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,14 @@ Global
 		{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F986041-B727-4ED7-A4CF-9EEABB90F2A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3CED870-4B1D-4F41-8BFF-6C038C5DF7D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60DEEF37-2EB3-471E-9A15-3E5039FF4AC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60DEEF37-2EB3-471E-9A15-3E5039FF4AC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60DEEF37-2EB3-471E-9A15-3E5039FF4AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60DEEF37-2EB3-471E-9A15-3E5039FF4AC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59D96856-D73E-4C88-A8AC-FE7A43E3A873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59D96856-D73E-4C88-A8AC-FE7A43E3A873}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59D96856-D73E-4C88-A8AC-FE7A43E3A873}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59D96856-D73E-4C88-A8AC-FE7A43E3A873}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
