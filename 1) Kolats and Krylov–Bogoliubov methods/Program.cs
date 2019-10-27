@@ -10,24 +10,25 @@ namespace Kolats_and_KrylovBogoliubov_methods
     {
         private const double left = 0;
         private const double right = 1;
-        private const int size = 6; // size > 5
+        private const int size = 5; // size > 5
         private const double h = (right - left) / (size - 1);
         private const double l2 = 540;
 
-        private static Matrix CreateMatrix()
+        private static MathNet.Numerics.LinearAlgebra.Matrix<double> CreateMatrix(Vector f)
         {
+            var rightMatrix = new DenseMatrix(size, size);
             var matrix = new DenseMatrix(size, size);
             for (int i = 0; i < size; ++i)
             {
-                matrix[i, i] = -2;
-                var val = left + (i * h);
+                rightMatrix[i, i] = f[i];
+                matrix[i, i] = -2 / (h * h);
                 if (i + 1 < size)
                 {
-                    matrix[i, i + 1] = 1 ;
-                    matrix[i + 1, i] = 1 ;
+                    matrix[i, i + 1] = 1 / (h * h);
+                    matrix[i + 1, i] = 1 / (h * h);
                 }
             }
-            return matrix;
+            return matrix * rightMatrix.Inverse();
         }
 
         private static Vector GetInitialF()
@@ -53,18 +54,9 @@ namespace Kolats_and_KrylovBogoliubov_methods
 
         static void Main(string[] args)
         {
-            Matrix T = CreateMatrix();
             List<Vector> f = new List<Vector>();
-            
             f.Add(GetInitialF());
-            Matrix right = new DenseMatrix(size, size);
-            for(int i=0; i<size; ++i)
-            {
-                right[i, i] = f[0][i];
-            }
-            MathNet.Numerics.LinearAlgebra.Matrix<double> inv = right.Inverse();
-
-            var res = T * inv;
+            var T = CreateMatrix(f[0]);
 
             //Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
             //for (int i = 0; i < size; ++i)
@@ -85,7 +77,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             for (int i = 0; i < itersCount - 1; ++i)
             {
                 var fCurrent = f.Last(); //fi-1
-                var fNext = res.Solve(fCurrent) as Vector; //fi
+                var fNext = T.Solve(fCurrent) as Vector; //fi
                 f.Add(fNext);
             }
 

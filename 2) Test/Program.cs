@@ -190,7 +190,7 @@ namespace _2__Test
 
         static void Main(string[] args)
         {
-            var n = 5;
+            var n = 10;
             var h = (right - left) / (n - 1);
 
             var m = 10;
