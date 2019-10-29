@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace _2__Test
+namespace WeinsteinMethod
 {
     class Program
     {
@@ -73,10 +73,10 @@ namespace _2__Test
 
         private static double[,] GetC(double[,] A, double[,] B, int n)
         {
-            var c = new double[n - 1, n - 1];
-            for (int i = 0; i < n - 1; ++i)
+            var c = new double[n, n];
+            for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n - 1; ++j)
+                for (int j = 0; j < n; ++j)
                 {
                     c[i, j] = A[i, j] - B[i, j];
                 }
@@ -172,7 +172,7 @@ namespace _2__Test
             return sum;
         }
 
-        private static double run(double[,] B, double[,] C, int n, double h, int m)
+        private static double run(double[,] B, double[,] C, int m)
         {
             var Cm = get_Cm(C, n, h, m);
             var Am = new double[n - 1, n - 1];
@@ -197,11 +197,11 @@ namespace _2__Test
             h = (right - left) / (n - 1);
 
             var m = 10;
-            var A = GetA(n, h);
-            var B = GetB(n, h);
-            var C = GetC(A, B, n);
+            var A = GetA();
+            var B = GetB();
+            var C = GetC(A, B, m);
 
-            var lambda = run(B, C, n, h, m);
+            var lambda = run(B, C, m);
             Console.WriteLine($"lambda = {lambda}");
             Console.ReadKey();
         }

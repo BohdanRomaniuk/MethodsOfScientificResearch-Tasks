@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace _2__Test
+namespace WeinsteinMethod
 {
     public static class MatrixHelper
     {
@@ -23,6 +23,24 @@ namespace _2__Test
                 Console.Write($"{vector[i]}\t");
             }
             Console.WriteLine();
+        }
+
+        public static double[,] Multiply(this double[,] first, double[,] second)
+        {
+            int rows = first.GetLength(0);
+            int cols = first.GetLength(1);
+            var result = new double[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    for (int k = 0; k < cols; ++k)
+                    {
+                        result[i, j] += first[i, k] * second[k, j];
+                    }
+                }
+            }
+            return result;
         }
     }
 }
