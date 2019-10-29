@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace FikerMethod
+namespace Kolats_and_KrylovBogoliubov_methods
 {
     public static class MatrixHelper
     {
@@ -25,7 +29,7 @@ namespace FikerMethod
             Console.WriteLine();
         }
 
-        public static double[,] Multiply(this double[,] first, double [,] second)
+        public static double[,] Multiply(this double[,] first, double[,] second)
         {
             int rows = first.GetLength(0);
             int cols = first.GetLength(1);

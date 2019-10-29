@@ -1,90 +1,78 @@
-﻿using Accord.Math;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Accord.Math;
 
-namespace _4._1__Test
+namespace FikerMethod
 {
     class Program
     {
-        private static double left = 1;
-        private static double right = 2;
-        private static double deviation = 0.001;
-        private static int n_max = 3000;
+        private static double left;
+        private static double right;
+        private static int n;
+        private static double h;
 
-        public static double f(double x)
+        public static double F(double x)
         {
-            return -1 * (9 + x * x) * (9 + x * x);
+            return 1 / ((9 + x * x) * (9 + x * x));
         }
 
-        public static double[] get_discrete_function(int n, double h)
+        public static double[] GetDiscreteFunction()
         {
             var res = new double[n];
             for (int i = 0; i < n; ++i)
             {
-                res[i] = f(left + i * h);
+                res[i] = F(left + i * h);
             }
             return res;
         }
 
-        private static double[,] get_T(int n, double h)
+        private static double[,] GetMatrixT()
         {
             var matrix = new double[n, n];
             for (int i = 0; i < n; ++i)
             {
-                matrix[i, i] = -2 / (h * h);
+                matrix[i, i] = -2;
                 if (i + 1 < n)
                 {
-                    matrix[i, i + 1] = 1 / (h * h);
-                    matrix[i + 1, i] = 1 / (h * h);
+                    matrix[i, i + 1] = 1;
+                    matrix[i + 1, i] = 1;
                 }
             }
             return matrix;
         }
 
-        private static double[,] get_A(int n, double h)
+        private static double[,] GetMatrixA()
         {
-            var f = get_discrete_function(n, h);
-            var tempM = get_T(n, h);
+            var f = GetDiscreteFunction();
+            var diagonalMatrix = new double[n, n];
             for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n; ++j)
-                {
-                    tempM[i, j] = tempM[i, j] * f[j];
-                }
+                diagonalMatrix[i, i] = f[i];
             }
-
-            return tempM.Transpose();
+            return GetMatrixT().Multiply(diagonalMatrix);
         }
 
         static void Main(string[] args)
         {
-            int n = 10;
-            double h = (right - left) / (n - 1);
+            left = 0;
+            right = 2;
+            n = 5;
+            h = (right - left) / (n - 1);
+            var A = GetMatrixA();
+            var AInverse = A.Inverse();
 
-            var lambda_previous = double.MaxValue;
-            while (n <= n_max)
+            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
+            var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
+            Console.WriteLine($"Real eigen values: {string.Join("\t", eigValsA)}");
+
+            var decAInverse = new Accord.Math.Decompositions.EigenvalueDecomposition(AInverse, false, true);
+            var eigValsAInverse = decAInverse.RealEigenvalues;
+            for (int i = 0; i < eigValsAInverse.Length; ++i)
             {
-                Console.WriteLine($"n: {n}");
-                var A = get_A(n, h);
-                var inverse = A.Inverse();
-
-                var dec = new Accord.Math.Decompositions.EigenvalueDecomposition(inverse);
-                var eigvals = dec.RealEigenvalues;
-                var m = eigvals.Max();
-                Console.WriteLine($"m: {m}");
-                var lambda = 1 / m;
-                Console.WriteLine($"lambda: {lambda}");
-                if (Math.Abs(lambda - lambda_previous) < deviation)
-                {
-                    break;
-                }
-                lambda_previous = lambda;
-                n += 100;
-                Console.WriteLine();
+                eigValsAInverse[i] = 1 / eigValsAInverse[i];
             }
+            Console.WriteLine($"Calculated values: {string.Join("\t", eigValsAInverse.OrderBy(c => c))}");
+
             Console.ReadKey();
         }
     }

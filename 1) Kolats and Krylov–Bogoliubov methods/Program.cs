@@ -10,34 +10,34 @@ namespace Kolats_and_KrylovBogoliubov_methods
     {
         private const double left = 0;
         private const double right = 1;
-        private const int size = 5; // size > 5
-        private const double h = (right - left) / (size - 1);
-        private const double l2 = 540;
+        private const int n = 5;
+        private const double h = (right - left) / (n - 1);
+        private const double l2 = 2;
 
         private static MathNet.Numerics.LinearAlgebra.Matrix<double> CreateMatrix(Vector f)
         {
-            var rightMatrix = new DenseMatrix(size, size);
-            var matrix = new DenseMatrix(size, size);
-            for (int i = 0; i < size; ++i)
+            var rightMatrix = new DenseMatrix(n, n);
+            var matrix = new DenseMatrix(n, n);
+            for (int i = 0; i < n; ++i)
             {
                 rightMatrix[i, i] = f[i];
-                matrix[i, i] = -2 / (h * h);
-                if (i + 1 < size)
+                matrix[i, i] = -2;
+                if (i + 1 < n)
                 {
-                    matrix[i, i + 1] = 1 / (h * h);
-                    matrix[i + 1, i] = 1 / (h * h);
+                    matrix[i, i + 1] = 1;
+                    matrix[i + 1, i] = 1;
                 }
             }
-            return matrix * rightMatrix.Inverse();
+            return matrix.Multiply(rightMatrix);
         }
 
         private static Vector GetInitialF()
         {
-            var vector = new DenseVector(size);
-            for (int i = 0; i < size; ++i)
+            var vector = new DenseVector(n);
+            for (int i = 0; i < n; ++i)
             {
                 var val = left + (i * h);
-                vector[i] = -((9 + val * val) * (9 + val * val));
+                vector[i] = 1/((9 + val * val) * (9 + val * val));
             }
             return vector;
         }
@@ -45,7 +45,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
         private static double Integrate(Vector u, Vector v)
         {
             double sum = 0;
-            for (int i = 0; i < size; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 sum += u[i] * v[i] * h;
             }
@@ -58,16 +58,16 @@ namespace Kolats_and_KrylovBogoliubov_methods
             f.Add(GetInitialF());
             var T = CreateMatrix(f[0]);
 
-            //Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
-            //for (int i = 0; i < size; ++i)
-            //{
-            //    for (int j = 0; j < size; ++j)
-            //    {
-            //        Console.Write($"{T[i, j],-5}{(j == size - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
-            //    }
-            //    Console.WriteLine();
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
+            for (int i = 0; i < n; ++i)
+            {
+                for (int j = 0; j < n; ++j)
+                {
+                    Console.Write($"{T[i, j],-5}{(j == n - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
 
             //Iterations count
             int itersCount = 15;
