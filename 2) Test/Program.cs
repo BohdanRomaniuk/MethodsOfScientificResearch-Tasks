@@ -9,15 +9,17 @@ namespace _2__Test
 {
     class Program
     {
-        static double left = 1;
-        static double right = 2;
+        private static double left;
+        private static double right;
+        private static int n;
+        private static double h;
 
         public static double F(double x)
         {
-            return (-1) * (9 + x * x) * (9 + x * x);
+            return 1 / ((9 + x * x) * (9 + x * x));
         }
 
-        public static double[] get_discrete_function(int n, double h)
+        public static double[] GetDiscreteFunction()
         {
             var res = new double[n - 1];
             for (int i = 1; i < n; ++i)
@@ -27,39 +29,38 @@ namespace _2__Test
             return res;
         }
 
-        private static double[,] get_T(int n, double h)
+        private static double[,] GetT()
         {
-            var matrix = new double[n - 1, n - 1];
-            for (int i = 0; i < n - 1; ++i)
+            var matrix = new double[n, n];
+            for (int i = 0; i < n; ++i)
             {
-                matrix[i, i] = -2 / (h * h);
-                var val = left + (i * h);
+                matrix[i, i] = -2;
                 if (i + 1 < n - 1)
                 {
-                    matrix[i, i + 1] = 1 / (h * h);
-                    matrix[i + 1, i] = 1 / (h * h);
+                    matrix[i, i + 1] = 1;
+                    matrix[i + 1, i] = 1;
                 }
             }
             return matrix;
         }
 
-        private static double[,] get_A(int n, double h)
+        private static double[,] GetA()
         {
-            var f = get_discrete_function(n, h);
-            var matrixA = get_T(n, h);
-            for (int i = 0; i < n - 1; ++i)
+            var f = GetDiscreteFunction();
+            var matrixA = GetT();
+            for (int i = 0; i < n; ++i)
             {
                 for (int j = 0; j < n - 1; ++j)
                 {
                     matrixA[i, j] = matrixA[i, j] * f[j];
                 }
             }
-            return matrixA.Transpose();
+            return matrixA;
         }
 
-        private static double[,] get_B(int n, double h)
+        private static double[,] GetB()
         {
-            var matrix = get_T(n, h);
+            var matrix = GetT();
             for (int i = 0; i < n - 1; ++i)
             {
                 for (int j = 0; j < n - 1; ++j)
@@ -70,7 +71,7 @@ namespace _2__Test
             return matrix;
         }
 
-        private static double[,] get_C(double[,] A, double[,] B, int n)
+        private static double[,] GetC(double[,] A, double[,] B, int n)
         {
             var c = new double[n - 1, n - 1];
             for (int i = 0; i < n - 1; ++i)
@@ -190,13 +191,15 @@ namespace _2__Test
 
         static void Main(string[] args)
         {
-            var n = 10;
-            var h = (right - left) / (n - 1);
+            left = 0;
+            right = 2;
+            n = 10;
+            h = (right - left) / (n - 1);
 
             var m = 10;
-            var A = get_A(n, h);
-            var B = get_B(n, h);
-            var C = get_C(A, B, n);
+            var A = GetA(n, h);
+            var B = GetB(n, h);
+            var C = GetC(A, B, n);
 
             var lambda = run(B, C, n, h, m);
             Console.WriteLine($"lambda = {lambda}");
