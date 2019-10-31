@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace WeinsteinMethod
 {
+    using Helpers;
     class Program
     {
         private static double left;
@@ -198,6 +199,7 @@ namespace WeinsteinMethod
 
             var m = 10;
             var A = GetA();
+            A.Print();
             var B = GetB();
             var C = GetC(A, B, m);
 

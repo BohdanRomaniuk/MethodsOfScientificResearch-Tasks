@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("2) Weinstein and Fiker methods")]
+[assembly: AssemblyTitle("1) Matrix Helper")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("2) Weinstein and Fiker methods")]
+[assembly: AssemblyProduct("1) Matrix Helper")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d3ced870-4b1d-4f41-8bff-6c038c5df7d9")]
+[assembly: Guid("fbd870f6-dac7-4659-a6b4-7b829e648740")]
 
 // Version information for an assembly consists of the following four values:
 //

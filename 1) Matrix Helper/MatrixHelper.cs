@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WeinsteinMethod
+namespace Helpers
 {
     public static class MatrixHelper
     {

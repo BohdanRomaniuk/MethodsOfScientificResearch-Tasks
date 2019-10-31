@@ -4,6 +4,7 @@ using Accord.Math;
 
 namespace FikerMethod
 {
+    using Helpers;
     class Program
     {
         private static double left;
