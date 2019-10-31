@@ -12,6 +12,7 @@ namespace FikerMethod
         private static int n;
         private static double h;
 
+
         public static double F(double x)
         {
             return -1 / ((9 + x * x) * (9 + x * x));
