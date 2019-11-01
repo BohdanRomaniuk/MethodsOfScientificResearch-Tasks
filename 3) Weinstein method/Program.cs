@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WeinsteinMethod
 {
@@ -17,26 +15,26 @@ namespace WeinsteinMethod
 
         public static double F(double x)
         {
-            return 1 / ((9 + x * x) * (9 + x * x));
+            return -1 / ((9 + x * x) * (9 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
         {
-            var res = new double[n - 1];
-            for (int i = 1; i < n; ++i)
+            var res = new double[n];
+            for (int i = 0; i < n; ++i)
             {
-                res[i - 1] = F(left + i * h);
+                res[i] = F(left + i * h);
             }
             return res;
         }
 
-        private static double[,] GetT()
+        private static double[,] GetMatrixT()
         {
             var matrix = new double[n, n];
             for (int i = 0; i < n; ++i)
             {
                 matrix[i, i] = -2;
-                if (i + 1 < n - 1)
+                if (i + 1 < n)
                 {
                     matrix[i, i + 1] = 1;
                     matrix[i + 1, i] = 1;
@@ -45,26 +43,23 @@ namespace WeinsteinMethod
             return matrix;
         }
 
-        private static double[,] GetA()
+        private static double[,] GetMatrixA()
         {
             var f = GetDiscreteFunction();
-            var matrixA = GetT();
+            var diagonalMatrix = new double[n, n];
             for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n - 1; ++j)
-                {
-                    matrixA[i, j] = matrixA[i, j] * f[j];
-                }
+                diagonalMatrix[i, i] = f[i];
             }
-            return matrixA;
+            return GetMatrixT().Multiply(diagonalMatrix);
         }
 
-        private static double[,] GetB()
+        private static double[,] GetMatrixB()
         {
-            var matrix = GetT();
-            for (int i = 0; i < n - 1; ++i)
+            var matrix = GetMatrixT();
+            for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n - 1; ++j)
+                for (int j = 0; j < n; ++j)
                 {
                     matrix[i, j] *= -1;
                 }
@@ -72,7 +67,7 @@ namespace WeinsteinMethod
             return matrix;
         }
 
-        private static double[,] GetC(double[,] A, double[,] B, int n)
+        private static double[,] GetMatrixC(double[,] A, double[,] B)
         {
             var c = new double[n, n];
             for (int i = 0; i < n; ++i)
@@ -85,43 +80,43 @@ namespace WeinsteinMethod
             return c;
         }
 
-        private static double[] get_fk(int k, int n, double h)
+        private static double[] GetFk(int k)
         {
-            var fk = new double[n - 1];
+            var fk = new double[n];
             if (k == 0)
             {
-                for (int i = 0; i < n - 1; ++i)
+                for (int i = 0; i < n; ++i)
                 {
                     fk[i] = 1;
                 }
             }
             else
             {
-                for (int i = 1; i < n; ++i)
+                for (int i = 0; i < n; ++i)
                 {
-                    fk[i - 1] = Math.Pow(left + i * h, k);
+                    fk[i] = Math.Pow(left + i * h, k);
                 }
             }
             return fk;
         }
 
-        private static double[] get_gk(double[,] C, double[] fk)
+        private static double[] GetGk(double[,] C, double[] fk)
         {
             return Matrix.Dot(C, fk);
         }
 
-        private static double[,] get_Cm(double[,] C, int n, double h, int m)
+        private static double[,] GetCm(double[,] C, int m)
         {
             var fk_arr = new List<double[]>();
             for (int i = 0; i < m; ++i)
             {
-                fk_arr.Add(get_fk(i, n, h));
+                fk_arr.Add(GetFk(i));
             }
 
             var gk_arr = new List<double[]>();
             for (int i = 0; i < m; ++i)
             {
-                gk_arr.Add(get_gk(C, fk_arr[i]));
+                gk_arr.Add(GetGk(C, fk_arr[i]));
             }
 
             var bij = new double[m, m];
@@ -129,16 +124,16 @@ namespace WeinsteinMethod
             {
                 for (int j = 0; j < m; ++j)
                 {
-                    bij[i, j] += scalarSum(fk_arr[j], gk_arr[i]);
+                    bij[i, j] += ScalarSum(fk_arr[j], gk_arr[i]);
                 }
             }
 
             bij = bij.Inverse();
-            var Cm = new double[n - 1, n - 1];
+            var Cm = new double[n, n];
             for (int i = 0; i < m; ++i)
             {
-                var gi = new double[n - 1];
-                for (int k = 0; k < n - 1; ++k)
+                var gi = new double[n];
+                for (int k = 0; k < n; ++k)
                 {
                     gi[k] = gk_arr[i][k];
                 }
@@ -163,7 +158,7 @@ namespace WeinsteinMethod
             return Cm;
         }
 
-        private static double scalarSum(double[] a, double[] b)
+        private static double ScalarSum(double[] a, double[] b)
         {
             double sum = 0;
             for (int i = 0; i < a.Length; ++i)
@@ -173,38 +168,46 @@ namespace WeinsteinMethod
             return sum;
         }
 
-        private static double run(double[,] B, double[,] C, int m)
+        private static double[] GetRealEigenValues(double[,] A)
         {
-            var Cm = get_Cm(C, n, h, m);
-            var Am = new double[n - 1, n - 1];
-            for (int i = 0; i < n - 1; ++i)
+            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
+            return decA.RealEigenvalues.OrderBy(c => c).ToList().ToArray();
+        }
+
+        private static double[] GetCalculatedEigenValues(double[,] B, double[,] C, int m)
+        {
+            var Cm = GetCm(C, m);
+            var Am = new double[n, n];
+            for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < n - 1; ++j)
+                for (int j = 0; j < n; ++j)
                 {
                     Am[i, j] = B[i, j] + Cm[i, j];
                 }
             }
             var dec = new Accord.Math.Decompositions.EigenvalueDecomposition(Am, false, true);
-            var eigvals = dec.RealEigenvalues;
-            return eigvals.Min();
+            return dec.RealEigenvalues.OrderBy(c => c).ToList().ToArray(); ;
         }
-
 
         static void Main(string[] args)
         {
             left = 0;
             right = 2;
-            n = 10;
+            n = 4;
             h = (right - left) / (n - 1);
 
             var m = 10;
-            var A = GetA();
-            A.Print();
-            var B = GetB();
-            var C = GetC(A, B, m);
+            var A = GetMatrixA();
+            var B = GetMatrixB();
+            var C = GetMatrixC(A, B);
 
-            var lambda = run(B, C, m);
-            Console.WriteLine($"lambda = {lambda}");
+            Console.WriteLine("Real eigen values:");
+            var lambdaReal = GetRealEigenValues(A);
+            lambdaReal.Print();
+
+            Console.WriteLine("Calculated eigen values:");
+            var lambdaCalc = GetCalculatedEigenValues(B, C, m);
+            lambdaCalc.Print();
             Console.ReadKey();
         }
     }

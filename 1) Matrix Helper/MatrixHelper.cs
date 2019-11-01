@@ -42,5 +42,10 @@ namespace Helpers
             }
             return result;
         }
+
+        public static double ToStr(this double value)
+        {
+            return value * 30;
+        }
     }
 }

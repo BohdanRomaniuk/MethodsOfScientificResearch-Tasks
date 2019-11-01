@@ -12,7 +12,6 @@ namespace FikerMethod
         private static int n;
         private static double h;
 
-
         public static double F(double x)
         {
             return -1 / ((9 + x * x) * (9 + x * x));
@@ -65,7 +64,7 @@ namespace FikerMethod
 
             var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
             var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
-            Console.WriteLine($"Real eigen values: {string.Join("\t", eigValsA)}");
+            Console.WriteLine($"Real eigen values: {string.Join("\t", eigValsA.Select(c => c))}");
 
             var decAInverse = new Accord.Math.Decompositions.EigenvalueDecomposition(AInverse, false, true);
             var eigValsAInverse = decAInverse.RealEigenvalues;
@@ -73,7 +72,7 @@ namespace FikerMethod
             {
                 eigValsAInverse[i] = 1 / eigValsAInverse[i];
             }
-            Console.WriteLine($"Calculated values: {string.Join("\t", eigValsAInverse.OrderBy(c => c))}");
+            Console.WriteLine($"Calculated values: {string.Join("\t", eigValsAInverse.Select(c => c).OrderBy(c => c))}");
 
             Console.ReadKey();
         }
