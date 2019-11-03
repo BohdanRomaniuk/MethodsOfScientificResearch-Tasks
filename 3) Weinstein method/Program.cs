@@ -15,7 +15,7 @@ namespace WeinsteinMethod
 
         public static double F(double x)
         {
-            return -1 / ((9 + x * x) * (9 + x * x));
+            return (-1) * ((9 + x * x) * (9 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
@@ -128,10 +128,12 @@ namespace WeinsteinMethod
                 }
             }
 
-            bij = bij.Inverse();
+            //bij = bij.Inverse();
+
             var Cm = new double[n, n];
             for (int i = 0; i < m; ++i)
             {
+                // Copy
                 var gi = new double[n];
                 for (int k = 0; k < n; ++k)
                 {
@@ -140,19 +142,13 @@ namespace WeinsteinMethod
 
                 for (int j = 0; j < m; ++j)
                 {
-                    for (int z = 0; z < n - 1; ++z)
+                    // gi = gi * bij[i][j]
+                    for (int z = 0; z < n; ++z)
                     {
                         gi[z] = gi[z] * bij[i, j];
                     }
 
-                    for (int i1 = 0; i1 < n - 1; ++i1)
-                    {
-                        for (int i2 = 0; i2 < n - 1; ++i2)
-                        {
-                            Cm[i1, i2] += gi[i1] * gk_arr[j][i2];
-                        }
-                    }
-
+                    Cm = Cm.Sum(MultiVecs(gi, gk_arr[j]));
                 }
             }
             return Cm;
@@ -166,6 +162,19 @@ namespace WeinsteinMethod
                 sum += a[i] * b[i];
             }
             return sum;
+        }
+
+        private static double[,] MultiVecs(double[] a, double[] b)
+        {
+            double[,] matr = new double[n, n];
+            for (int i = 0; i < n; ++i)
+            {
+                for (int j = 0; j < n; ++j)
+                {
+                    matr[i, j] = a[i] * b[j];
+                }
+            }
+            return matr;
         }
 
         private static double[] GetRealEigenValues(double[,] A)
@@ -186,14 +195,25 @@ namespace WeinsteinMethod
                 }
             }
             var dec = new Accord.Math.Decompositions.EigenvalueDecomposition(Am, false, true);
-            return dec.RealEigenvalues.OrderBy(c => c).ToList().ToArray(); ;
+            return dec.RealEigenvalues.OrderBy(c => c).ToList().ToArray();
+        }
+
+        private static double[] GetCalculatedEigenValues(double[,] A, int m)
+        {
+            var decAInverse = new Accord.Math.Decompositions.EigenvalueDecomposition(A.Inverse(), false, true);
+            var eigValsAInverse = decAInverse.RealEigenvalues;
+            for (int i = 0; i < eigValsAInverse.Length; ++i)
+            {
+                eigValsAInverse[i] = 1 / eigValsAInverse[i];
+            }
+            return eigValsAInverse.OrderBy(c => c).ToList().ToArray();
         }
 
         static void Main(string[] args)
         {
             left = 0;
             right = 2;
-            n = 4;
+            n = 20;
             h = (right - left) / (n - 1);
 
             var m = 10;
@@ -205,8 +225,8 @@ namespace WeinsteinMethod
             var lambdaReal = GetRealEigenValues(A);
             lambdaReal.Print();
 
-            Console.WriteLine("Calculated eigen values:");
-            var lambdaCalc = GetCalculatedEigenValues(B, C, m);
+            Console.WriteLine("\nCalculated eigen values:");
+            var lambdaCalc = GetCalculatedEigenValues(A, m);
             lambdaCalc.Print();
             Console.ReadKey();
         }

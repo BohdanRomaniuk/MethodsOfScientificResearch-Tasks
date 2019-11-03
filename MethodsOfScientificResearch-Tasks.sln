@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4) Fiker method", "4) Fiker
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1) Matrix Helper", "1) Matrix Helper\1) Matrix Helper.csproj", "{FBD870F6-DAC7-4659-A6B4-7B829E648740}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5) Calculation of exact derivatives", "5) Calculation of exact derivatives\5) Calculation of exact derivatives.csproj", "{B6400376-C4CA-4DD7-A991-916AAC251236}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "6) Finding the initial approximation", "6) Finding the initial approximation\6) Finding the initial approximation.csproj", "{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{FBD870F6-DAC7-4659-A6B4-7B829E648740}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBD870F6-DAC7-4659-A6B4-7B829E648740}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBD870F6-DAC7-4659-A6B4-7B829E648740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6400376-C4CA-4DD7-A991-916AAC251236}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6400376-C4CA-4DD7-A991-916AAC251236}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6400376-C4CA-4DD7-A991-916AAC251236}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6400376-C4CA-4DD7-A991-916AAC251236}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
