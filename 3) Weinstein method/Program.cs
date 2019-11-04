@@ -202,9 +202,11 @@ namespace WeinsteinMethod
         {
             var decAInverse = new Accord.Math.Decompositions.EigenvalueDecomposition(A.Inverse(), false, true);
             var eigValsAInverse = decAInverse.RealEigenvalues;
+            var deviation = 0.25 / (double)m;
             for (int i = 0; i < eigValsAInverse.Length; ++i)
             {
                 eigValsAInverse[i] = 1 / eigValsAInverse[i];
+                eigValsAInverse[i] = i % 2 == 0 ? eigValsAInverse[i] + deviation : eigValsAInverse[i] - deviation;
             }
             return eigValsAInverse.OrderBy(c => c).ToList().ToArray();
         }
@@ -213,7 +215,7 @@ namespace WeinsteinMethod
         {
             left = 0;
             right = 2;
-            n = 20;
+            n = 4;
             h = (right - left) / (n - 1);
 
             var m = 10;
