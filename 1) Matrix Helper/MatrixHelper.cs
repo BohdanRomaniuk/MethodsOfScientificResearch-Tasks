@@ -68,6 +68,31 @@ namespace Helpers
             return result;
         }
 
+        public static double[,] Sub(this double[,] first, double[,] second)
+        {
+            int rows = first.GetLength(0);
+            int cols = first.GetLength(1);
+            var result = new double[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    result[i, j] += first[i, j] - second[i, j];
+                }
+            }
+            return result;
+        }
+
+        public static double[,] FillDiagonal(this double[,] matrix, double value)
+        {
+            int n = matrix.GetLength(0);
+            for (int i = 0; i < n; ++i)
+            {
+                matrix[i, i] = value;
+            }
+            return matrix;
+        }
+
         public static double ToStr(this double value)
         {
             return value + 9.9570009916314;
