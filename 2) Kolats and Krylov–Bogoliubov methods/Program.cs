@@ -1,5 +1,4 @@
-﻿using Helpers;
-using MathNet.Numerics.LinearAlgebra.Double;
+﻿using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +8,26 @@ namespace Kolats_and_KrylovBogoliubov_methods
 {
     class Program
     {
-        private const double left = 0;
-        private const double right = 1;
-        private const int n = 5;
-        private const double h = (right - left) / (n - 1);
-        private const double l2 = 34;
+        private static double left;
+        private static double right;
+        private static int n;
+        private static double h;
+        private static double l2;
+
+        public static double F(double x)
+        {
+            return (-1) * ((9 + x * x) * (9 + x * x));
+        }
+
+        private static Vector GetInitialF()
+        {
+            var vector = new DenseVector(n);
+            for (int i = 0; i < n; ++i)
+            {
+                vector[i] = F(left + (i * h));
+            }
+            return vector;
+        }
 
         private static MathNet.Numerics.LinearAlgebra.Matrix<double> CreateMatrix(Vector f)
         {
@@ -32,17 +46,6 @@ namespace Kolats_and_KrylovBogoliubov_methods
             return matrix.Multiply(rightMatrix);
         }
 
-        private static Vector GetInitialF()
-        {
-            var vector = new DenseVector(n);
-            for (int i = 0; i < n; ++i)
-            {
-                var val = left + (i * h);
-                vector[i] = (-1)*((9 + val * val) * (9 + val * val));
-            }
-            return vector;
-        }
-
         private static double Integrate(Vector u, Vector v)
         {
             double sum = 0;
@@ -55,6 +58,16 @@ namespace Kolats_and_KrylovBogoliubov_methods
 
         static void Main(string[] args)
         {
+            //Initialization
+            left = 0;
+            right = 1;
+            n = 4;
+            h = (right - left) / (n - 1);
+            l2 = 34;
+
+            //Iterations count
+            int itersCount = 15;
+
             List<Vector> f = new List<Vector>();
             f.Add(GetInitialF());
             var T = CreateMatrix(f[0]);
@@ -69,9 +82,6 @@ namespace Kolats_and_KrylovBogoliubov_methods
                 Console.WriteLine();
             }
             Console.WriteLine();
-
-            //Iterations count
-            int itersCount = 15;
 
             // Kolats method begin
             ++itersCount;
@@ -116,7 +126,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             Console.WriteLine("{0,3} {1,10} {2,15} {3,15} ", "Iter.", "ν", "λ", "μ");
             for (int i = 2; i < itersCount; ++i)
             {
-                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, nu[i].ToStr(), lambdaList[i].ToStr(), mu[i].ToStr());
+                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, nu[i], lambdaList[i], mu[i]);
             }
             Console.WriteLine();
 
@@ -136,7 +146,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             Console.WriteLine("i:\t\tμ lower\t\tλ\t\tμ upper");
             for (int i = 2; i < itersCount; ++i)
             {
-                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, lowerBound[i].ToStr(), lambdaList[i].ToStr(), upperBound[i].ToStr());
+                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, lowerBound[i], lambdaList[i], upperBound[i]);
             }
 
             Console.ReadKey();

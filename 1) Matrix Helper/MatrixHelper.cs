@@ -92,10 +92,5 @@ namespace Helpers
             }
             return matrix;
         }
-
-        public static double ToStr(this double value)
-        {
-            return value + 9.9570009916314;
-        }
     }
 }
