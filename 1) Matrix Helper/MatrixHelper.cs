@@ -70,7 +70,7 @@ namespace Helpers
 
         public static double ToStr(this double value)
         {
-            return value * 30;
+            return value + 9.9570009916314;
         }
     }
 }

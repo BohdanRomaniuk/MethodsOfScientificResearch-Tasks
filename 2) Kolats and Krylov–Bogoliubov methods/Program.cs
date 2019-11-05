@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
+﻿using Helpers;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
         private const double right = 1;
         private const int n = 5;
         private const double h = (right - left) / (n - 1);
-        private const double l2 = 2;
+        private const double l2 = 34;
 
         private static MathNet.Numerics.LinearAlgebra.Matrix<double> CreateMatrix(Vector f)
         {
@@ -37,7 +38,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             for (int i = 0; i < n; ++i)
             {
                 var val = left + (i * h);
-                vector[i] = -1/((9 + val * val) * (9 + val * val));
+                vector[i] = (-1)*((9 + val * val) * (9 + val * val));
             }
             return vector;
         }
@@ -115,7 +116,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             Console.WriteLine("{0,3} {1,10} {2,15} {3,15} ", "Iter.", "ν", "λ", "μ");
             for (int i = 2; i < itersCount; ++i)
             {
-                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, nu[i], lambdaList[i], mu[i]);
+                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, nu[i].ToStr(), lambdaList[i].ToStr(), mu[i].ToStr());
             }
             Console.WriteLine();
 
@@ -135,7 +136,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             Console.WriteLine("i:\t\tμ lower\t\tλ\t\tμ upper");
             for (int i = 2; i < itersCount; ++i)
             {
-                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, lowerBound[i], lambdaList[i], upperBound[i]);
+                Console.WriteLine("{0}:\t{1:F10}\t{2:F10}\t{3:F10}", i, lowerBound[i].ToStr(), lambdaList[i].ToStr(), upperBound[i].ToStr());
             }
 
             Console.ReadKey();

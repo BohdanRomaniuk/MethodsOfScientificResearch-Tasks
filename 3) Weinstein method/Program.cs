@@ -214,7 +214,7 @@ namespace WeinsteinMethod
         static void Main(string[] args)
         {
             left = 0;
-            right = 2;
+            right = 1;
             n = 4;
             h = (right - left) / (n - 1);
 

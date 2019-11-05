@@ -56,8 +56,8 @@ namespace FikerMethod
         static void Main(string[] args)
         {
             left = 0;
-            right = 2;
-            n = 10;
+            right = 1;
+            n = 4;
             h = (right - left) / (n - 1);
             var A = GetMatrixA();
             var AInverse = A.Inverse();
