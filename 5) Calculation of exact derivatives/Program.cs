@@ -67,14 +67,14 @@ namespace Calculation_of_exact_derivatives
             return mat.Sub(sub);
         }
 
-        private static void n_eig(double l, int n, double[,] AA)
+        private static void n_eig(double l, int n, double[,] A)
         {
             double l_n = 0;
 
             for (int i = 0; i < n; ++i)
             {
-                var _mat = sub_diag(AA, l, n);
-                var _mat_1 = sub_diag(AA.Inverse(), l, n);
+                var _mat = sub_diag(A, l, n);
+                var _mat_1 = sub_diag(A.Inverse(), l, n);
                 ddet(_mat, n, out var f, out var df, out var ddf);
 
                 l_n = l + f / df;
@@ -83,7 +83,7 @@ namespace Calculation_of_exact_derivatives
 
 
             Console.WriteLine($"First = {l_n}");
-            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(AA, false, true);
+            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
             var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
             Console.WriteLine($"Second = { string.Join("\t", eigValsA.Select(c => c))}");
         }
@@ -94,8 +94,8 @@ namespace Calculation_of_exact_derivatives
             right = 1;
             n = 4;
             h = (right - left) / (n - 1);
-            var AA = GetMatrixA();
-            n_eig(5, 30, AA);
+            var A = GetMatrixA();
+            n_eig(5, 30, A);
 
             Console.ReadKey();
         }
