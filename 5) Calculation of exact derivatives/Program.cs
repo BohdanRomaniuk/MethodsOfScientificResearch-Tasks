@@ -53,39 +53,76 @@ namespace Calculation_of_exact_derivatives
             return GetMatrixT().Multiply(diagonalMatrix);
         }
 
-        private static void ddet(double[,] mat, int n, out double f, out double df, out double ddf)
+        private static void Solve(double[,] matrix, int n, out double f, out double df)
         {
-            f = 0;
+            var b = new double[n, n];
+            var c = new double[n, n];
+            var d = matrix.Copy();
+            b.FillDiagonal(1);
+
+            var u = new double[n, n];
+            var l = new double[n, n];
+
+            var v = new double[n, n];
+            var m = new double[n, n];
+            var w = new double[n, n];
+            var nn = new double[n, n];
+
+            for (int r = 0; r < n; ++r)
+            {
+                int k = r;
+                for (int i = r + 1; i < n; ++i, ++k)
+                {
+                    u[r, k] = d[r, k] - l.Row(r).Multiply(u.Col(k)).SumFirst(r);
+                    l[i, r] = (d[i, r] - l.Row(i).Multiply(u.Col(r)).SumFirst(r)) / u[r, r];
+
+                    v[r, k] = b[r, k] - m.Row(r).Multiply(u.Col(k)).Sum(l.Row(r).Multiply(v.Col(k))).SumFirst(r);
+                    m[i, r] = (b[i, r] - m.Row(i).Multiply(u.Col(r)).Sum(l.Row(i).Multiply(v.Col(r))).SumFirst(r) - l[i, r] * v[r, r]) / u[r, r];
+
+                    w[r, k] = c[r, k] - nn.Row(r).Multiply(u.Col(k)).Sum(m.Row(r).Multiply(v.Col(k), 2)).Sum(l.Row(r).Multiply(w.Col(k))).SumFirst(r);
+
+                    nn[i, r] = (c[i, r] - nn.Row(i).Multiply(u.Col(r)).Sum(m.Row(i).Multiply(v.Col(r), 2)).Sum(l.Row(i).Multiply(w.Col(r)))
+                        .SumFirst(r) - 2 * m[i, r] *v[r, r] - l[i, r] * w[r, r]) / u[r, r];
+                }
+                k = n - 1;
+
+                u[r, k] = d[r, k] - l.Row(r).Multiply(u.Col(k)).SumFirst(r);
+                v[r, k] = b[r, k] - m.Row(r).Multiply(u.Col(k)).Sum(l.Row(r).Multiply(v.Col(k))).SumFirst(r);
+                w[r, k] = c[r, k] - nn.Row(r).Multiply(u.Col(k)).Sum(m.Row(r).Multiply(v.Col(k), 2)).Sum(l.Row(r).Multiply(w.Col(k))).SumFirst(r);
+            }
+
+            l.FillDiagonal(1);
+            m.FillDiagonal(0);
+            nn.FillDiagonal(0);
+
+            //Product
+            f = 1.0;
+            for (int i = 0; i < n; ++i)
+            {
+                f *= u[i, i];
+            }
+
             df = 0;
-            ddf = 0;
+            for (int k = 0; k < n; ++k)
+            {
+                double prod = 1.0;
+                for (int i = 0; i < n; ++i)
+                {
+                    if (i == k)
+                    {
+                        continue;
+                    }
+                    prod *= u[i, i];
+                }
+                df += v[k, k] * prod;
+            }
         }
 
-        private static double[,] sub_diag(double[,] mat, double value, int n)
+        private static double[,] SubDiagonal(double[,] matrix, double value, int n)
         {
             var sub = new double[n, n];
             sub = sub.FillDiagonal(value);
-            return mat.Sub(sub);
-        }
-
-        private static void n_eig(double l, int n, double[,] A)
-        {
-            double l_n = 0;
-
-            for (int i = 0; i < n; ++i)
-            {
-                var _mat = sub_diag(A, l, n);
-                var _mat_1 = sub_diag(A.Inverse(), l, n);
-                ddet(_mat, n, out var f, out var df, out var ddf);
-
-                l_n = l + f / df;
-                l = l_n;
-            }
-
-
-            Console.WriteLine($"First = {l_n}");
-            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
-            var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
-            Console.WriteLine($"Second = { string.Join("\t", eigValsA.Select(c => c))}");
+            return matrix.Sub(sub);
         }
 
         static void Main(string[] args)
@@ -95,7 +132,22 @@ namespace Calculation_of_exact_derivatives
             n = 4;
             h = (right - left) / (n - 1);
             var A = GetMatrixA();
-            n_eig(5, 30, A);
+
+            double lprev = 32;
+            double lnext = 0;
+            for (int i = 0; i < n; ++i)
+            {
+                var matrix = SubDiagonal(A, lprev, n);
+                Solve(matrix, n, out var f, out var df);
+
+                lnext = lprev + f / df;
+                lprev = lnext;
+            }
+
+            Console.WriteLine($"First = {lnext}");
+            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
+            var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
+            Console.WriteLine($"Real  = { string.Join("\t", eigValsA.Select(c => c))}");
 
             Console.ReadKey();
         }
