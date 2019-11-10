@@ -53,7 +53,7 @@ namespace Calculation_of_exact_derivatives
             return GetMatrixT().Multiply(diagonalMatrix);
         }
 
-        private static void Solve(double[,] matrix, int n, out double f, out double df)
+        private static double GetDeltaLambda(double[,] matrix, int n)
         {
             var b = new double[n, n];
             var c = new double[n, n];
@@ -95,27 +95,14 @@ namespace Calculation_of_exact_derivatives
             m.FillDiagonal(0);
             nn.FillDiagonal(0);
 
-            //Product
-            f = 1.0;
-            for (int i = 0; i < n; ++i)
+            double sum = 0;
+            for(int i=0; i<n; ++i)
             {
-                f *= u[i, i];
+                sum += v[i, i] / u[i, i];
             }
 
-            df = 0;
-            for (int k = 0; k < n; ++k)
-            {
-                double prod = 1.0;
-                for (int i = 0; i < n; ++i)
-                {
-                    if (i == k)
-                    {
-                        continue;
-                    }
-                    prod *= u[i, i];
-                }
-                df += v[k, k] * prod;
-            }
+            //Delta lamdba
+            return 1 / sum; 
         }
 
         private static double[,] SubDiagonal(double[,] matrix, double value, int n)
@@ -131,18 +118,20 @@ namespace Calculation_of_exact_derivatives
             right = 1;
             n = 4;
             h = (right - left) / (n - 1);
+            var deviation = 0.00001;
             var A = GetMatrixA();
 
-            double lprev = 32;
+            double lprev = 33;
             double lnext = 0;
-            for (int i = 0; i < n; ++i)
+            double deltaLambda = double.MaxValue;
+            do
             {
                 var matrix = SubDiagonal(A, lprev, n);
-                Solve(matrix, n, out var f, out var df);
+                deltaLambda = GetDeltaLambda(matrix, n);
 
-                lnext = lprev + f / df;
+                lnext = lprev + deltaLambda;
                 lprev = lnext;
-            }
+            } while (deltaLambda > deviation);
 
             Console.WriteLine($"First = {lnext}");
             var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
