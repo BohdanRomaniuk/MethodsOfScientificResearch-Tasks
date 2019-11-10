@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Numerics;
 
 namespace Finding_the_initial_approximation
@@ -15,7 +11,7 @@ namespace Finding_the_initial_approximation
         public static int n;
         public static double h;
         public static double center;
-        public static double rho;
+        public static double radius;
 
         private static double F(double x)
         {
@@ -55,22 +51,14 @@ namespace Finding_the_initial_approximation
             {
                 diagonalMatrix[i, i] = f[i];
             }
-            return diagonalMatrix;
+            return GetMatrixT().MultiplyComplex(diagonalMatrix);
         }
 
-        public static Complex[,] LinearOperator(Complex lambda)
+        private static Complex[,] GetMatrixD(Complex[,] A, Complex value)
         {
-            return GetMatrixT().SubComplex(GetMatrixA().MultiplyComplex(lambda).MultiplyComplex(H2()));
-        }
-
-        public static Complex[,] LinearOperatorDerivative()
-        {
-            return GetMatrixA().MultiplyComplex(-H2());
-        }
-
-        private static double H2()
-        {
-            return Math.Pow(h, 2);
+            var D = new Complex[n, n];
+            D = D.FillDiagonalComplex(value);
+            return A.SubComplex(D);
         }
 
         public static void LU(Complex[,] D, out Complex[,] L, out Complex[,] U)
@@ -83,20 +71,20 @@ namespace Finding_the_initial_approximation
                 U[0, i] = D[0, i];
                 for (int j = i; j < n; ++j)
                 {
-                    Complex summation = Complex.Zero;
+                    var sum = Complex.Zero;
                     for (int k = 0; k < i; ++k)
                     {
-                        summation += L[i, k] * U[k, j];
+                        sum += L[i, k] * U[k, j];
                     }
-                    U[i, j] = D[i, j] - summation;
+                    U[i, j] = D[i, j] - sum;
                     if (i <= j)
                     {
-                        summation = Complex.Zero;
+                        sum = Complex.Zero;
                         for (int k = 0; k < i; ++k)
                         {
-                            summation += L[j, k] * U[k, i];
+                            sum += L[j, k] * U[k, i];
                         }
-                        L[j, i] = (D[j, i] - summation) / U[i, i];
+                        L[j, i] = (D[j, i] - sum) / U[i, i];
                     }
                 }
             }
@@ -112,20 +100,20 @@ namespace Finding_the_initial_approximation
                 V[0, i] = B[0, i];
                 for (int j = i; j < n; ++j)
                 {
-                    Complex summation = Complex.Zero;
+                    var sum = Complex.Zero;
                     for (int k = 0; k < i; ++k)
                     {
-                        summation += M[i, k] * U[k, j] + L[i, k] * V[k, j];
+                        sum += M[i, k] * U[k, j] + L[i, k] * V[k, j];
                     }
-                    V[i, j] = B[i, j] - summation;
+                    V[i, j] = B[i, j] - sum;
                     if (i <= j)
                     {
-                        summation = Complex.Zero;
+                        sum = Complex.Zero;
                         for (int k = 0; k < i; ++k)
                         {
-                            summation += M[j, k] * U[k, i] + L[j, k] * V[k, i];
+                            sum += M[j, k] * U[k, i] + L[j, k] * V[k, i];
                         }
-                        M[j, i] = (B[j, i] - summation - L[j, i] * V[i, i]) / U[i, i];
+                        M[j, i] = (B[j, i] - sum - L[j, i] * V[i, i]) / U[i, i];
                     }
                 }
             }
@@ -133,7 +121,7 @@ namespace Finding_the_initial_approximation
 
         public static Complex Determinant(Complex[,] U)
         {
-            Complex result = Complex.One;
+            var result = Complex.One;
             for (int i = 0; i < U.GetLength(0); ++i)
             {
                 result *= U[i, i];
@@ -146,7 +134,7 @@ namespace Finding_the_initial_approximation
             var sum = Complex.Zero;
             for (int k = 0; k < V.GetLength(0); ++k)
             {
-                Complex product = Complex.One;
+                var product = Complex.One;
                 for (int i = 0; i < U.GetLength(0); ++i)
                 {
                     if (i != k)
@@ -159,39 +147,50 @@ namespace Finding_the_initial_approximation
             return sum;
         }
 
+        //s0
         public static double RootsCount()
         {
-            Complex summation = Complex.Zero;
+            var sum = Complex.Zero;
 
             for (int i = 0; i < n; ++i)
             {
-                var spectralRadius = SpectralRadius(i + 1, n);
+                var spectralRadius = Spec(i + 1, n);
                 var lambda = center + spectralRadius;
 
-                Complex[,] D = LinearOperator(lambda);
-                Complex[,] B = LinearOperatorDerivative();
+                Complex[,] D = GetMatrixD(GetMatrixA(), lambda);
+                Complex[,] B = new Complex[n, n];
+                B.FillDiagonalComplex(Complex.One);
+
                 Complex[,] L, U, M, V;
 
                 LU(D, out L, out U);
                 MULV(B, out M, U, L, out V);
 
+                //First approach
                 var determinant = Determinant(U);
                 var determinantDerivative = DeterminantDerivative(V, U);
+                sum += spectralRadius * determinantDerivative / determinant;
 
-                summation += spectralRadius * determinantDerivative / determinant;
+                ////Second approach
+                //Complex prodSum = 0;
+                //for (int j = 0; j < n; ++j)
+                //{
+                //    prodSum += V[j, j] / U[j, j];
+                //}
+                //sum += spectralRadius * prodSum;
             }
 
-            return (summation / n).Magnitude;
+            return Complex.Abs(sum / n);
         }
 
         public static double InitialApproximation(int j, int n)
         {
-            return (center + SpectralRadius(j, n)).Magnitude;
+            return Complex.Abs(center + Spec(j, n));
         }
 
-        private static Complex SpectralRadius(int j, int n)
+        private static Complex Spec(int j, int n)
         {
-            return rho * Complex.Exp(Complex.ImaginaryOne * 2.0 * Math.PI * j / n);
+            return radius * Complex.Exp(2.0 * Math.PI * Complex.ImaginaryOne * j / n);
         }
 
         static void Main(string[] args)
@@ -200,14 +199,12 @@ namespace Finding_the_initial_approximation
             right = 1.0;
             n = 50;
             h = (right - left) / (n + 1);
-            center = 65;
-            rho = 2;
+            center = 30;
+            radius = 5;
 
             int parts = 4;
             for (int k = 0; k < parts; ++k)
             {
-                left += k;
-                right += k;
                 double s0 = RootsCount();
                 int rootsCount = (int)Math.Round(s0);
                 Console.WriteLine($"[{left}, {right}] -> s0 = {s0}\nFound {rootsCount} root(s):");
@@ -217,7 +214,7 @@ namespace Finding_the_initial_approximation
                     for (int i = 0; i < rootsCount; ++i)
                     {
                         double initalApproximation = InitialApproximation(i + 1, rootsCount);
-                        Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation / 2 - 0.5);
+                        Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation);
                     }
                 }
                 else
@@ -225,6 +222,8 @@ namespace Finding_the_initial_approximation
                     Console.WriteLine("-------------");
                 }
                 Console.WriteLine();
+                left += 1.0;
+                right += 1.0;
             }
             Console.ReadKey();
         }

@@ -54,6 +54,24 @@ namespace Helpers
             return result;
         }
 
+        public static Complex[,] MultiplyComplex(this Complex[,] first, Complex[,] second)
+        {
+            int rows = first.GetLength(0);
+            int cols = first.GetLength(1);
+            var result = new Complex[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    for (int k = 0; k < cols; ++k)
+                    {
+                        result[i, j] += first[i, k] * second[k, j];
+                    }
+                }
+            }
+            return result;
+        }
+
         public static Complex[,] MultiplyComplex(this Complex[,] first, Complex scalar)
         {
             int rows = first.GetLength(0);
@@ -93,7 +111,7 @@ namespace Helpers
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    result[i, j] += first[i, j] - second[i, j];
+                    result[i, j] = first[i, j] - second[i, j];
                 }
             }
             return result;
@@ -108,7 +126,7 @@ namespace Helpers
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    result[i, j] += first[i, j] - second[i, j];
+                    result[i, j] = first[i, j] - second[i, j];
                 }
             }
             return result;
@@ -135,6 +153,16 @@ namespace Helpers
         }
 
         public static double[,] FillDiagonal(this double[,] matrix, double value)
+        {
+            int n = matrix.GetLength(0);
+            for (int i = 0; i < n; ++i)
+            {
+                matrix[i, i] = value;
+            }
+            return matrix;
+        }
+
+        public static Complex[,] FillDiagonalComplex(this Complex[,] matrix, Complex value)
         {
             int n = matrix.GetLength(0);
             for (int i = 0; i < n; ++i)

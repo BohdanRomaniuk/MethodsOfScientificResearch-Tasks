@@ -94,7 +94,8 @@ namespace WeinsteinMethod
             {
                 for (int i = 0; i < n; ++i)
                 {
-                    fk[i] = Math.Pow(left + i * h, k);
+                    //fk[i] = Math.Pow(left + i * h, k);
+                    fk[i] = Math.Sin(left + i * h);
                 }
             }
             return fk;

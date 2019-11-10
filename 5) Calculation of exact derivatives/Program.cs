@@ -53,10 +53,10 @@ namespace Calculation_of_exact_derivatives
             return GetMatrixT().Multiply(diagonalMatrix);
         }
 
-        private static double[,] GetMatrixD(double[,] A, double value, int n)
+        private static double[,] GetMatrixD(double[,] A, double lambda)
         {
             var D = new double[n, n];
-            D = D.FillDiagonal(value);
+            D = D.FillDiagonal(lambda);
             return A.Sub(D);
         }
 
@@ -118,6 +118,34 @@ namespace Calculation_of_exact_derivatives
             }
         }
 
+        public static double Determinant(double[,] U)
+        {
+            double result = 1;
+            for (int i = 0; i < U.GetLength(0); ++i)
+            {
+                result *= U[i, i];
+            }
+            return result;
+        }
+
+        public static double DeterminantDerivative(double[,] V, double[,] U)
+        {
+            var sum = 0.0;
+            for (int k = 0; k < V.GetLength(0); ++k)
+            {
+                double product = 1;
+                for (int i = 0; i < U.GetLength(0); ++i)
+                {
+                    if (i != k)
+                    {
+                        product *= U[i, i];
+                    }
+                }
+                sum += V[k, k] * product;
+            }
+            return sum;
+        }
+
         private static double GetDeltaLambda(double[,] D, int n)
         {
             var B = new double[n, n];
@@ -132,14 +160,18 @@ namespace Calculation_of_exact_derivatives
             LU(D, out L, out U);
             MULV(B, out M, U, L, out V);
 
-            double sum = 0;
-            for(int i=0; i<n; ++i)
-            {
-                sum += V[i, i] / U[i, i];
-            }
+            var f = Determinant(U);
+            var df = DeterminantDerivative(V, U);
+            return f / df;
 
-            //Delta lamdba
-            return 1 / sum; 
+            //double sum = 0;
+            //for (int i = 0; i < n; ++i)
+            //{
+            //    sum += V[i, i] / U[i, i];
+            //}
+
+            ////Delta lamdba
+            //return 1 / sum;
         }
 
         static void Main(string[] args)
@@ -151,22 +183,22 @@ namespace Calculation_of_exact_derivatives
             var deviation = 0.00000001;
             var A = GetMatrixA();
 
-            double lambdaPrev = 33;
+            double lambdaPrev = 25; //Initial approach
             double lambdaNext = 0;
             double deltaLambda = double.MaxValue;
             do
             {
-                var D = GetMatrixD(A, lambdaPrev, n);
+                var D = GetMatrixD(A, lambdaPrev);
                 deltaLambda = GetDeltaLambda(D, n);
 
                 lambdaNext = lambdaPrev + deltaLambda;
                 lambdaPrev = lambdaNext;
-            } while (deltaLambda > deviation);
+            } while (Math.Abs(deltaLambda) > deviation);
 
-            Console.WriteLine($"First = {lambdaNext}");
+            Console.WriteLine($"Lambda = {lambdaNext}");
             var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
             var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
-            Console.WriteLine($"Real  = { string.Join("\t", eigValsA.Select(c => c))}");
+            Console.WriteLine($"Real values   = { string.Join("\t", eigValsA.Select(c => c))}");
 
             Console.ReadKey();
         }
