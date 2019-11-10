@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using MathNet.Numerics.LinearAlgebra.Complex;
 
 namespace Finding_the_initial_approximation
 {
     using Helpers;
-    using MathNet.Numerics.LinearAlgebra;
-
     class Program
     {
         public static double left;
@@ -25,24 +22,19 @@ namespace Finding_the_initial_approximation
             return (-1) * ((9 + x * x) * (9 + x * x));
         }
 
-        private static Vector<Complex> Vector()
+        private static Complex[] GetDiscreteFunction()
         {
-            Vector<Complex> vector = Vector<Complex>.Build.Dense(n);
+            var res = new Complex[n];
             for (int i = 0; i < n; ++i)
             {
-                vector[i] = F(left + i * h);
+                res[i] = F(left + i * h);
             }
-            return vector;
+            return res;
         }
 
-        private static Matrix<Complex> GetMatrixA()
+        private static Complex[,] GetMatrixT()
         {
-            return Matrix<Complex>.Build.DiagonalOfDiagonalVector(Vector());
-        }
-
-        private static Matrix<Complex> GetMatrixT()
-        {
-            var matrix = Matrix<Complex>.Build.Sparse(n, n);
+            var matrix = new Complex[n, n];
             for (int i = 0; i < n; ++i)
             {
                 matrix[i, i] = -2;
@@ -55,14 +47,25 @@ namespace Finding_the_initial_approximation
             return matrix;
         }
 
-        public static Matrix<Complex> LinearOperator(Complex lambda)
+        private static Complex[,] GetMatrixA()
         {
-            return GetMatrixT() - lambda * H2() * GetMatrixA();
+            var f = GetDiscreteFunction();
+            var diagonalMatrix = new Complex[n, n];
+            for (int i = 0; i < n; ++i)
+            {
+                diagonalMatrix[i, i] = f[i];
+            }
+            return diagonalMatrix;
         }
 
-        public static Matrix<Complex> LinearOperatorDerivative()
+        public static Complex[,] LinearOperator(Complex lambda)
         {
-            return -H2() * GetMatrixA();
+            return GetMatrixT().SubComplex(GetMatrixA().MultiplyComplex(lambda).MultiplyComplex(H2()));
+        }
+
+        public static Complex[,] LinearOperatorDerivative()
+        {
+            return GetMatrixA().MultiplyComplex(-H2());
         }
 
         private static double H2()
@@ -70,93 +73,81 @@ namespace Finding_the_initial_approximation
             return Math.Pow(h, 2);
         }
 
-        public static void LU(Matrix<Complex> D, out Matrix<Complex> L, out Matrix<Complex> U)
+        public static void LU(Complex[,] D, out Complex[,] L, out Complex[,] U)
         {
-            L = Matrix<Complex>.Build.Sparse(n, n);
-            U = Matrix<Complex>.Build.Sparse(n, n);
+            L = new Complex[n, n];
+            U = new Complex[n, n];
 
             for (int i = 0; i < n; ++i)
             {
                 U[0, i] = D[0, i];
-
                 for (int j = i; j < n; ++j)
                 {
                     Complex summation = Complex.Zero;
-
                     for (int k = 0; k < i; ++k)
                     {
                         summation += L[i, k] * U[k, j];
                     }
-
                     U[i, j] = D[i, j] - summation;
-
                     if (i <= j)
                     {
                         summation = Complex.Zero;
-
                         for (int k = 0; k < i; ++k)
                         {
                             summation += L[j, k] * U[k, i];
                         }
-
                         L[j, i] = (D[j, i] - summation) / U[i, i];
                     }
                 }
             }
         }
 
-        public static void MULV(Matrix<Complex> B, out Matrix<Complex> M, Matrix<Complex> U, Matrix<Complex> L, out Matrix<Complex> V)
+        public static void MULV(Complex[,] B, out Complex[,] M, Complex[,] U, Complex[,] L, out Complex[,] V)
         {
-            M = Matrix<Complex>.Build.Sparse(n, n);
-            V = Matrix<Complex>.Build.Sparse(n, n);
+            M = new Complex[n, n];
+            V = new Complex[n, n];
 
             for (int i = 0; i < n; ++i)
             {
                 V[0, i] = B[0, i];
-
                 for (int j = i; j < n; ++j)
                 {
                     Complex summation = Complex.Zero;
-
                     for (int k = 0; k < i; ++k)
                     {
                         summation += M[i, k] * U[k, j] + L[i, k] * V[k, j];
                     }
-
                     V[i, j] = B[i, j] - summation;
-
                     if (i <= j)
                     {
                         summation = Complex.Zero;
-
                         for (int k = 0; k < i; ++k)
                         {
                             summation += M[j, k] * U[k, i] + L[j, k] * V[k, i];
                         }
-
                         M[j, i] = (B[j, i] - summation - L[j, i] * V[i, i]) / U[i, i];
                     }
                 }
             }
         }
 
-        public static Complex Determinant(Matrix<Complex> U)
+        public static Complex Determinant(Complex[,] U)
         {
             Complex result = Complex.One;
-            for (int i = 0; i < U.RowCount; ++i)
+            for (int i = 0; i < U.GetLength(0); ++i)
             {
                 result *= U[i, i];
             }
             return result;
         }
 
-        public static Complex DeterminantDerivative(Matrix<Complex> V, Matrix<Complex> U)
+        public static Complex DeterminantDerivative(Complex[,] V, Complex[,] U)
         {
             var sum = Complex.Zero;
-            for (int k = 0; k < V.RowCount; ++k)
+            for (int k = 0; k < V.GetLength(0); ++k)
             {
                 Complex product = Complex.One;
-                for (int i = 0; i < U.RowCount; ++i)
+                for (int i = 0; i < U.GetLength(0); ++i)
                 {
                     if (i != k)
                     {
@@ -165,7 +156,6 @@ namespace Finding_the_initial_approximation
                 }
                 sum += V[k, k] * product;
             }
-
             return sum;
         }
 
@@ -178,9 +168,9 @@ namespace Finding_the_initial_approximation
                 var spectralRadius = SpectralRadius(i + 1, n);
                 var lambda = center + spectralRadius;
 
-                Matrix<Complex> D = LinearOperator(lambda);
-                Matrix<Complex> B = LinearOperatorDerivative();
-                Matrix<Complex> L, U, M, V;
+                Complex[,] D = LinearOperator(lambda);
+                Complex[,] B = LinearOperatorDerivative();
+                Complex[,] L, U, M, V;
 
                 LU(D, out L, out U);
                 MULV(B, out M, U, L, out V);
@@ -236,8 +226,6 @@ namespace Finding_the_initial_approximation
                 }
                 Console.WriteLine();
             }
-
-
             Console.ReadKey();
         }
     }

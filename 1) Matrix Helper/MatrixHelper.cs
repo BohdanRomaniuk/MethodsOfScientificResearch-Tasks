@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Helpers
 {
@@ -53,6 +54,21 @@ namespace Helpers
             return result;
         }
 
+        public static Complex[,] MultiplyComplex(this Complex[,] first, Complex scalar)
+        {
+            int rows = first.GetLength(0);
+            int cols = first.GetLength(1);
+            var result = new Complex[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    result[i, j] += first[i, j] * scalar;
+                }
+            }
+            return result;
+        }
+
         public static double[,] Sum(this double[,] first, double[,] second)
         {
             int rows = first.GetLength(0);
@@ -73,6 +89,21 @@ namespace Helpers
             int rows = first.GetLength(0);
             int cols = first.GetLength(1);
             var result = new double[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    result[i, j] += first[i, j] - second[i, j];
+                }
+            }
+            return result;
+        }
+
+        public static Complex[,] SubComplex(this Complex[,] first, Complex[,] second)
+        {
+            int rows = first.GetLength(0);
+            int cols = first.GetLength(1);
+            var result = new Complex[rows, cols];
             for (int i = 0; i < rows; ++i)
             {
                 for (int j = 0; j < cols; ++j)
@@ -131,7 +162,7 @@ namespace Helpers
         {
             int cols = matrix.GetLength(1);
             var res = new double[cols];
-            for(int i=0; i<cols; ++i)
+            for (int i = 0; i < cols; ++i)
             {
                 res[i] = matrix[row, i];
             }
@@ -152,7 +183,7 @@ namespace Helpers
         public static double SumFirst(this double[] vector, int size)
         {
             double res = 0;
-            for(int i=0; i<size; ++i)
+            for (int i = 0; i < size; ++i)
             {
                 res += vector[i];
             }
