@@ -14,7 +14,7 @@ namespace Calculation_of_exact_derivatives
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return -Math.Pow(4 + Math.Pow(x, 2), 2);
         }
 
         public static double[] GetDiscreteFunction()
@@ -60,118 +60,56 @@ namespace Calculation_of_exact_derivatives
             return A.Sub(D);
         }
 
-        public static void LU(double[,] D, out double[,] L, out double[,] U)
+        private static double GetDeltaLambda(double[,] d, int n)
         {
-            L = new double[n,n];
-            U = new double[n, n];
+            var b = new double[n, n];
+            var c = new double[n, n];
+            b.FillDiagonal(1);
 
+            var u = new double[n, n];
+            var l = new double[n, n];
+            var v = new double[n, n];
+            var m = new double[n, n];
+
+            var w = new double[n, n];
+
+            var nn = new double[n, n];
+
+            for (int r = 0; r < n; ++r)
+            {
+                int k = r;
+                for (int i = r + 1; i < n; ++i, ++k)
+                {
+                    u[r, k] = d[r, k] - l.Row(r).Multiply(u.Col(k)).SumFirst(r);
+                    l[i, r] = (d[i, r] - l.Row(i).Multiply(u.Col(r)).SumFirst(r)) / u[r, r];
+
+                    v[r, k] = b[r, k] - m.Row(r).Multiply(u.Col(k)).Sum(l.Row(r).Multiply(v.Col(k))).SumFirst(r);
+                    m[i, r] = (b[i, r] - m.Row(i).Multiply(u.Col(r)).Sum(l.Row(i).Multiply(v.Col(r))).SumFirst(r) - l[i, r] * v[r, r]) / u[r, r];
+
+                    w[r, k] = c[r, k] - nn.Row(r).Multiply(u.Col(k)).Sum(m.Row(r).Multiply(v.Col(k), 2)).Sum(l.Row(r).Multiply(w.Col(k))).SumFirst(r);
+
+                    nn[i, r] = (c[i, r] - nn.Row(i).Multiply(u.Col(r)).Sum(m.Row(i).Multiply(v.Col(r), 2)).Sum(l.Row(i).Multiply(w.Col(r)))
+                        .SumFirst(r) - 2 * m[i, r] * v[r, r] - l[i, r] * w[r, r]) / u[r, r];
+                }
+                k = n - 1;
+
+                u[r, k] = d[r, k] - l.Row(r).Multiply(u.Col(k)).SumFirst(r);
+                v[r, k] = b[r, k] - m.Row(r).Multiply(u.Col(k)).Sum(l.Row(r).Multiply(v.Col(k))).SumFirst(r);
+                w[r, k] = c[r, k] - nn.Row(r).Multiply(u.Col(k)).Sum(m.Row(r).Multiply(v.Col(k), 2)).Sum(l.Row(r).Multiply(w.Col(k))).SumFirst(r);
+            }
+
+            l.FillDiagonal(1);
+            m.FillDiagonal(0);
+            nn.FillDiagonal(0);
+
+            double sum = 0;
             for (int i = 0; i < n; ++i)
             {
-                U[0, i] = D[0, i];
-                for (int j = i; j < n; ++j)
-                {
-                    var sum = 0.0;
-                    for (int k = 0; k < i; ++k)
-                    {
-                        sum += L[i, k] * U[k, j];
-                    }
-                    U[i, j] = D[i, j] - sum;
-                    if (i <= j)
-                    {
-                        sum = 0.0;
-                        for (int k = 0; k < i; ++k)
-                        {
-                            sum += L[j, k] * U[k, i];
-                        }
-                        L[j, i] = (D[j, i] - sum) / U[i, i];
-                    }
-                }
+                sum += v[i, i] / u[i, i];
             }
-        }
 
-        public static void MULV(double[,] B, out double[,] M, double[,] U, double[,] L, out double[,] V)
-        {
-            M = new double[n,n];
-            V = new double[n, n];
-
-            for (int i = 0; i < n; ++i)
-            {
-                V[0, i] = B[0, i];
-                for (int j = i; j < n; ++j)
-                {
-                    var sum = 0.0;
-                    for (int k = 0; k < i; ++k)
-                    {
-                        sum += M[i, k] * U[k, j] + L[i, k] * V[k, j];
-                    }
-                    V[i, j] = B[i, j] - sum;
-                    if (i <= j)
-                    {
-                        sum = 0;
-                        for (int k = 0; k < i; ++k)
-                        {
-                            sum += M[j, k] * U[k, i] + L[j, k] * V[k, i];
-                        }
-                        M[j, i] = (B[j, i] - sum - L[j, i] * V[i, i]) / U[i, i];
-                    }
-                }
-            }
-        }
-
-        public static double Determinant(double[,] U)
-        {
-            double result = 1;
-            for (int i = 0; i < U.GetLength(0); ++i)
-            {
-                result *= U[i, i];
-            }
-            return result;
-        }
-
-        public static double DeterminantDerivative(double[,] V, double[,] U)
-        {
-            var sum = 0.0;
-            for (int k = 0; k < V.GetLength(0); ++k)
-            {
-                double product = 1;
-                for (int i = 0; i < U.GetLength(0); ++i)
-                {
-                    if (i != k)
-                    {
-                        product *= U[i, i];
-                    }
-                }
-                sum += V[k, k] * product;
-            }
-            return sum;
-        }
-
-        private static double GetDeltaLambda(double[,] D, int n)
-        {
-            var B = new double[n, n];
-            var C = new double[n, n];
-            B.FillDiagonal(1);
-
-            var U = new double[n, n];
-            var L = new double[n, n];
-            var V = new double[n, n];
-            var M = new double[n, n];
-
-            LU(D, out L, out U);
-            MULV(B, out M, U, L, out V);
-
-            var f = Determinant(U);
-            var df = DeterminantDerivative(V, U);
-            return f / df;
-
-            //double sum = 0;
-            //for (int i = 0; i < n; ++i)
-            //{
-            //    sum += V[i, i] / U[i, i];
-            //}
-
-            ////Delta lamdba
-            //return 1 / sum;
+            //Delta lamdba
+            return 1 / sum;
         }
 
         static void Main(string[] args)
@@ -183,7 +121,7 @@ namespace Calculation_of_exact_derivatives
             var deviation = 0.00000001;
             var A = GetMatrixA();
 
-            double lambdaPrev = 25; //Initial approach
+            double lambdaPrev = 6; //Initial approach
             double lambdaNext = 0;
             double deltaLambda = double.MaxValue;
             do
