@@ -13,12 +13,12 @@ namespace Finding_the_initial_approximation
 
     class Program
     {
-        public const double LowerBound = 0.0 ;
-        public const double UpperBound = 1.0 ;
-        public const int N = 50;
-        public const double H = 1.0 / (N + 1);
-        public const double Center = 65.0;
-        public const double Rho = 2.0;
+        public static double left;
+        public static double right;
+        public static int n;
+        public static double h;
+        public static double center;
+        public static double rho;
 
         private static double F(double x)
         {
@@ -27,10 +27,10 @@ namespace Finding_the_initial_approximation
 
         private static Vector<Complex> Vector()
         {
-            Vector<Complex> vector = Vector<Complex>.Build.Dense(N);
-            for (int i = 0; i < N; ++i)
+            Vector<Complex> vector = Vector<Complex>.Build.Dense(n);
+            for (int i = 0; i < n; ++i)
             {
-                vector[i] = F(LowerBound + i * H);
+                vector[i] = F(left + i * h);
             }
             return vector;
         }
@@ -42,11 +42,11 @@ namespace Finding_the_initial_approximation
 
         private static Matrix<Complex> GetMatrixT()
         {
-            var matrix = Matrix<Complex>.Build.Sparse(N, N);
-            for (int i = 0; i < N; ++i)
+            var matrix = Matrix<Complex>.Build.Sparse(n, n);
+            for (int i = 0; i < n; ++i)
             {
                 matrix[i, i] = -2;
-                if (i + 1 < N)
+                if (i + 1 < n)
                 {
                     matrix[i, i + 1] = 1;
                     matrix[i + 1, i] = 1;
@@ -67,19 +67,19 @@ namespace Finding_the_initial_approximation
 
         private static double H2()
         {
-            return Math.Pow(H, 2);
+            return Math.Pow(h, 2);
         }
 
         public static void LU(Matrix<Complex> D, out Matrix<Complex> L, out Matrix<Complex> U)
         {
-            L = Matrix<Complex>.Build.Sparse(N, N);
-            U = Matrix<Complex>.Build.Sparse(N, N);
+            L = Matrix<Complex>.Build.Sparse(n, n);
+            U = Matrix<Complex>.Build.Sparse(n, n);
 
-            for (int i = 0; i < N; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 U[0, i] = D[0, i];
 
-                for (int j = i; j < N; ++j)
+                for (int j = i; j < n; ++j)
                 {
                     Complex summation = Complex.Zero;
 
@@ -107,14 +107,14 @@ namespace Finding_the_initial_approximation
 
         public static void MULV(Matrix<Complex> B, out Matrix<Complex> M, Matrix<Complex> U, Matrix<Complex> L, out Matrix<Complex> V)
         {
-            M = Matrix<Complex>.Build.Sparse(N, N);
-            V = Matrix<Complex>.Build.Sparse(N, N);
+            M = Matrix<Complex>.Build.Sparse(n, n);
+            V = Matrix<Complex>.Build.Sparse(n, n);
 
-            for (int i = 0; i < N; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 V[0, i] = B[0, i];
 
-                for (int j = i; j < N; ++j)
+                for (int j = i; j < n; ++j)
                 {
                     Complex summation = Complex.Zero;
 
@@ -173,10 +173,10 @@ namespace Finding_the_initial_approximation
         {
             Complex summation = Complex.Zero;
 
-            for (int i = 0; i < N; ++i)
+            for (int i = 0; i < n; ++i)
             {
-                var spectralRadius = SpectralRadius(i + 1, N);
-                var lambda = Center + spectralRadius;
+                var spectralRadius = SpectralRadius(i + 1, n);
+                var lambda = center + spectralRadius;
 
                 Matrix<Complex> D = LinearOperator(lambda);
                 Matrix<Complex> B = LinearOperatorDerivative();
@@ -191,39 +191,52 @@ namespace Finding_the_initial_approximation
                 summation += spectralRadius * determinantDerivative / determinant;
             }
 
-            return (summation / N).Magnitude;
+            return (summation / n).Magnitude;
         }
 
         public static double InitialApproximation(int j, int n)
         {
-            return (Center + SpectralRadius(j, n)).Magnitude;
+            return (center + SpectralRadius(j, n)).Magnitude;
         }
 
         private static Complex SpectralRadius(int j, int n)
         {
-            return Rho * Complex.Exp(Complex.ImaginaryOne * 2.0 * Math.PI * j / n);
+            return rho * Complex.Exp(Complex.ImaginaryOne * 2.0 * Math.PI * j / n);
         }
 
         static void Main(string[] args)
         {
-            double s0 = RootsCount();
-            Console.WriteLine("s0 = {0}\n", s0);
+            left = 0.0;
+            right = 1.0;
+            n = 50;
+            h = (right - left) / (n + 1);
+            center = 65;
+            rho = 2;
 
-            int rootsCount = (int)Math.Round(s0);
-            if (rootsCount > 0)
+            int parts = 4;
+            for (int k = 0; k < parts; ++k)
             {
-                Console.WriteLine("{0} root(s) found. Initial Approximation(s):\n", rootsCount);
-                for (int i = 0; i < rootsCount; ++i)
+                left += k;
+                right += k;
+                double s0 = RootsCount();
+                int rootsCount = (int)Math.Round(s0);
+                Console.WriteLine($"[{left}, {right}] -> s0 = {s0}\nFound {rootsCount} root(s):");
+
+                if (rootsCount > 0)
                 {
-                    double initalApproximation = InitialApproximation(i + 1, rootsCount);
-
-                    Console.WriteLine("{0}. lambda0 = {1}", i + 1, initalApproximation / 2);
+                    for (int i = 0; i < rootsCount; ++i)
+                    {
+                        double initalApproximation = InitialApproximation(i + 1, rootsCount);
+                        Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation / 2 - 0.5);
+                    }
                 }
+                else
+                {
+                    Console.WriteLine("-------------");
+                }
+                Console.WriteLine();
             }
-            else
-            {
-                Console.WriteLine("No roots found.");
-            }
+
 
             Console.ReadKey();
         }
