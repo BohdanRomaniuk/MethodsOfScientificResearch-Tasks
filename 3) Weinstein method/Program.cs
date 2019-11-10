@@ -56,12 +56,12 @@ namespace WeinsteinMethod
 
         private static double[,] GetMatrixB()
         {
-            var matrix = GetMatrixT();
+            double[,] matrix = GetMatrixA();
             for (int i = 0; i < n; ++i)
             {
                 for (int j = 0; j < n; ++j)
                 {
-                    matrix[i, j] *= -1;
+                    matrix[i, j] -= 0.05;
                 }
             }
             return matrix;
@@ -127,8 +127,6 @@ namespace WeinsteinMethod
                     bij[i, j] += ScalarSum(fk_arr[j], gk_arr[i]);
                 }
             }
-
-            //bij = bij.Inverse();
 
             var Cm = new double[n, n];
             for (int i = 0; i < m; ++i)
@@ -198,19 +196,6 @@ namespace WeinsteinMethod
             return dec.RealEigenvalues.OrderBy(c => c).ToList().ToArray();
         }
 
-        private static double[] GetCalculatedEigenValues(double[,] A, int m)
-        {
-            var decAInverse = new Accord.Math.Decompositions.EigenvalueDecomposition(A.Inverse(), false, true);
-            var eigValsAInverse = decAInverse.RealEigenvalues;
-            var deviation = 0.25 / (double)m;
-            for (int i = 0; i < eigValsAInverse.Length; ++i)
-            {
-                eigValsAInverse[i] = 1 / eigValsAInverse[i];
-                eigValsAInverse[i] = i % 2 == 0 ? eigValsAInverse[i] + deviation : eigValsAInverse[i] - deviation;
-            }
-            return eigValsAInverse.OrderBy(c => c).ToList().ToArray();
-        }
-
         static void Main(string[] args)
         {
             left = 0;
@@ -218,7 +203,7 @@ namespace WeinsteinMethod
             n = 4;
             h = (right - left) / (n - 1);
 
-            var m = 10;
+            var m = 4;
             var A = GetMatrixA();
             var B = GetMatrixB();
             var C = GetMatrixC(A, B);
@@ -228,7 +213,7 @@ namespace WeinsteinMethod
             lambdaReal.Print();
 
             Console.WriteLine("\nCalculated eigen values:");
-            var lambdaCalc = GetCalculatedEigenValues(A, m);
+            var lambdaCalc = GetCalculatedEigenValues(B, C, m);
             lambdaCalc.Print();
             Console.ReadKey();
         }
