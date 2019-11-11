@@ -189,33 +189,26 @@ namespace Finding_the_initial_approximation
         {
             left = 0.0;
             right = 1.0;
-            n = 50;
+            n = 4;
             h = (right - left) / (n - 1);
-            center = 30;
-            radius = 5;
+            center = 32;
+            radius = 1;
 
-            int parts = 6;
-            for (int k = 0; k < parts; ++k)
+            double s0 = RootsCount();
+            int rootsCount = (int)Math.Round(s0);
+            Console.WriteLine($"[{center - radius}, {center + radius}] => s0 = {s0}\nFound {rootsCount} root(s):");
+
+            if (rootsCount > 0)
             {
-                double s0 = RootsCount();
-                int rootsCount = (int)Math.Round(s0);
-                Console.WriteLine($"[{left}, {right}] => s0 = {s0}\nFound {rootsCount} root(s):");
-
-                if (rootsCount > 0)
+                for (int i = 0; i < rootsCount; ++i)
                 {
-                    for (int i = 0; i < rootsCount; ++i)
-                    {
-                        double initalApproximation = InitialApproximation(i + 1, rootsCount);
-                        Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation);
-                    }
+                    double initalApproximation = InitialApproximation(i + 1, rootsCount);
+                    Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation);
                 }
-                else
-                {
-                    Console.WriteLine("-------------");
-                }
-                Console.WriteLine();
-                left += 1.0;
-                right += 1.0;
+            }
+            else
+            {
+                Console.WriteLine("-------------");
             }
             Console.ReadKey();
         }
