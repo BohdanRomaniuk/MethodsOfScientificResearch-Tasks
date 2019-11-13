@@ -90,7 +90,7 @@ namespace Finding_the_initial_approximation
             }
         }
 
-        public static void MULV(Complex[,] B, out Complex[,] M, Complex[,] U, Complex[,] L, out Complex[,] V)
+        public static void MV(Complex[,] B, out Complex[,] M, Complex[,] U, Complex[,] L, out Complex[,] V)
         {
             M = new Complex[n, n];
             V = new Complex[n, n];
@@ -137,10 +137,11 @@ namespace Finding_the_initial_approximation
                 var product = Complex.One;
                 for (int i = 0; i < U.GetLength(0); ++i)
                 {
-                    if (i != k)
+                    if (i == k)
                     {
-                        product *= U[i, i];
+                        continue;
                     }
+                    product *= U[i, i];
                 }
                 sum += V[k, k] * product;
             }
@@ -164,19 +165,19 @@ namespace Finding_the_initial_approximation
                 Complex[,] L, U, M, V;
 
                 LU(D, out L, out U);
-                MULV(B, out M, U, L, out V);
+                MV(B, out M, U, L, out V);
 
-                //First approach
+                ///////////////First approach	
                 var determinant = Determinant(U);
                 var determinantDerivative = DeterminantDerivative(V, U);
                 sum += spectralRadius * determinantDerivative / determinant;
 
-                ////Second approach
-                //Complex prodSum = 0;
-                //for (int j = 0; j < n; ++j)
-                //{
-                //    prodSum += V[j, j] / U[j, j];
-                //}
+                ///////////////Second approach	
+                //Complex prodSum = 0;	
+                //for (int j = 0; j < n; ++j)	
+                //{	
+                //    prodSum += V[j, j] / U[j, j];	
+                //}	
                 //sum += spectralRadius * prodSum;
             }
 
@@ -197,33 +198,26 @@ namespace Finding_the_initial_approximation
         {
             left = 0.0;
             right = 1.0;
-            n = 50;
-            h = (right - left) / (n + 1);
-            center = 30;
-            radius = 5;
+            n = 4;
+            h = (right - left) / (n - 1);
+            center = 32;
+            radius = 1;
 
-            int parts = 4;
-            for (int k = 0; k < parts; ++k)
+            double s0 = RootsCount();
+            int rootsCount = (int)Math.Round(s0);
+            Console.WriteLine($"[{center - radius}, {center + radius}] => s0 = {s0}\nFound {rootsCount} root(s):");
+
+            if (rootsCount > 0)
             {
-                double s0 = RootsCount();
-                int rootsCount = (int)Math.Round(s0);
-                Console.WriteLine($"[{left}, {right}] -> s0 = {s0}\nFound {rootsCount} root(s):");
-
-                if (rootsCount > 0)
+                for (int i = 0; i < rootsCount; ++i)
                 {
-                    for (int i = 0; i < rootsCount; ++i)
-                    {
-                        double initalApproximation = InitialApproximation(i + 1, rootsCount);
-                        Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation);
-                    }
+                    double initalApproximation = InitialApproximation(i + 1, rootsCount);
+                    Console.WriteLine("{0}. lambda = {1}", i + 1, initalApproximation);
                 }
-                else
-                {
-                    Console.WriteLine("-------------");
-                }
-                Console.WriteLine();
-                left += 1.0;
-                right += 1.0;
+            }
+            else
+            {
+                Console.WriteLine("-------------");
             }
             Console.ReadKey();
         }
