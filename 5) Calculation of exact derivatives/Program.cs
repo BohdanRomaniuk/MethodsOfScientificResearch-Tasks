@@ -161,9 +161,20 @@ namespace Calculation_of_exact_derivatives
             LU(D, out L, out U);
             MV(B, out M, U, L, out V);
 
+            ///////////////First approach
             var f = Determinant(U);
             var df = DeterminantDerivative(V, U);
             return f / df;
+
+            //////////////Second approach
+            //double sum = 0;	
+            //for (int i = 0; i < n; ++i)	
+            //{	
+            //    sum += V[i, i] / U[i, i];	
+            //}	
+
+            ////Delta lamdba	
+            //return 1 / sum;
         }
 
         static void Main(string[] args)

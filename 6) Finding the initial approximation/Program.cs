@@ -167,9 +167,18 @@ namespace Finding_the_initial_approximation
                 LU(D, out L, out U);
                 MV(B, out M, U, L, out V);
 
+                ///////////////First approach	
                 var determinant = Determinant(U);
                 var determinantDerivative = DeterminantDerivative(V, U);
                 sum += spectralRadius * determinantDerivative / determinant;
+
+                ///////////////Second approach	
+                //Complex prodSum = 0;	
+                //for (int j = 0; j < n; ++j)	
+                //{	
+                //    prodSum += V[j, j] / U[j, j];	
+                //}	
+                //sum += spectralRadius * prodSum;
             }
 
             return Complex.Abs(sum / n);
