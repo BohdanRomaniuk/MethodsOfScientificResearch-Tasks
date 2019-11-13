@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5) Calculation of exact der
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "6) Finding the initial approximation", "6) Finding the initial approximation\6) Finding the initial approximation.csproj", "{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7) Analogues of the Newton method", "7) Analogues of the Newton method\7) Analogues of the Newton method.csproj", "{B88A8D0E-4454-4109-9D63-ACE5729700ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "8) Analogues of the Helli-Newton method", "8) Analogues of the Helli-Newton method\8) Analogues of the Helli-Newton method.csproj", "{252E7997-D2A3-4549-A1F3-76DD3B2019A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E421B3B-E81C-4C76-8973-3FDBD79DCBD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B88A8D0E-4454-4109-9D63-ACE5729700ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B88A8D0E-4454-4109-9D63-ACE5729700ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B88A8D0E-4454-4109-9D63-ACE5729700ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B88A8D0E-4454-4109-9D63-ACE5729700ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{252E7997-D2A3-4549-A1F3-76DD3B2019A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{252E7997-D2A3-4549-A1F3-76DD3B2019A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{252E7997-D2A3-4549-A1F3-76DD3B2019A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{252E7997-D2A3-4549-A1F3-76DD3B2019A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
