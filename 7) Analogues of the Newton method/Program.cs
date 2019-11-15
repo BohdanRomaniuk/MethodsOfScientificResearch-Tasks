@@ -90,6 +90,7 @@ namespace _7__Analogues_of_the_Newton_method
                     }
                 }
             }
+
         }
 
         public static void MV(double[,] B, out double[,] M, double[,] U, double[,] L, out double[,] V)
@@ -155,10 +156,9 @@ namespace _7__Analogues_of_the_Newton_method
             }
         }
 
-        private static double FirstApproximation(double[,] D, int n)
+        private static void FirstApproximation(double[,] A, double lambda1, double lambda2, out double deltaLambda1, out double deltaLambda2)
         {
             var B = new double[n, n];
-            var C = new double[n, n];
             B.FillDiagonal(1);
 
             var U = new double[n, n];
@@ -167,20 +167,48 @@ namespace _7__Analogues_of_the_Newton_method
             var M = new double[n, n];
             var W = new double[n, n];
 
+            //Delta lamdba 1 Begin
+            var D = GetMatrixD(A, lambda1);
+            LU(D, out L, out U);
+            MV(B, out M, U, L, out V);
+            
+            double sum = 0;
+            for (int k = 0; k < n; ++k)
+            {
+                sum += V[k, k] / U[k, k];
+            }
+            deltaLambda1 = 1 / sum;
+            //Delta lamdba 1 End
+
+            //Delta lamdba 2 Begin
+            B = new double[n, n];
+            B.FillDiagonal(1);
+
+            U = new double[n, n];
+            L = new double[n, n];
+            V = new double[n, n];
+            M = new double[n, n];
+            W = new double[n, n];
+
+            D = GetMatrixD(A, lambda2);
             LU(D, out L, out U);
             MV(B, out M, U, L, out V);
             WN(L, U, M, V, out W);
 
-
-            ////////////Second approach
-            double sum = 0;
-            for (int i = 0; i < n; ++i)
+            double sum1 = 0;
+            double sum2 = 0;
+            for (int k = 0; k < n; ++k)
             {
-                sum += V[i, i] / U[i, i];
+                sum1 += V[k, k] / U[k, k];
+                sum2 += Math.Pow(V[k, k] / U[k, k], 2) - W[k, k] / U[k, k];
             }
+            deltaLambda2 = sum1 / sum2;
+            //Delta lamdba 2 end
+        }
 
-            //Delta lamdba	
-            return 1 / sum;
+        public static double ArithmeticMean(double lambda1, double lambda2)
+        {
+            return (lambda1 + lambda2) / 2;
         }
 
         static void Main(string[] args)
@@ -192,22 +220,33 @@ namespace _7__Analogues_of_the_Newton_method
             var deviation = 0.00000001;
             var A = GetMatrixA();
 
-            double lambdaPrev = 32; //Initial approach
-            double lambdaNext = 0;
-            double deltaLambda = double.MaxValue;
+            double lambdaPrev1 = 30; //Initial left approximation
+            double lambdaPrev2 = 35; //Initial right approximation
 
-            Console.WriteLine($"Lambda = {lambdaPrev}");
+            double lambdaNext1 = 0;
+            double lambdaNext2 = 0;
+
+            double deltaLambda1 = double.MaxValue;
+            double deltaLambda2 = double.MaxValue;
+
+            double deltaLambdaMain = double.MaxValue;
+
+            Console.WriteLine($"Lambda = {ArithmeticMean(lambdaPrev1, lambdaPrev2)}");
             do
             {
-                var D = GetMatrixD(A, lambdaPrev);
-                deltaLambda = FirstApproximation(D, n);
+                FirstApproximation(A, lambdaPrev1, lambdaPrev2, out deltaLambda1, out deltaLambda2);
 
-                lambdaNext = lambdaPrev + deltaLambda;
-                lambdaPrev = lambdaNext;
-                Console.WriteLine($"Lambda = {lambdaNext}");
-            } while (Math.Abs(deltaLambda) > deviation);
+                lambdaNext1 = lambdaPrev1 + deltaLambda1;
+                lambdaNext2 = lambdaPrev2 + deltaLambda2;
 
-            Console.WriteLine($"\nLambda final = {lambdaNext}");
+                Console.WriteLine($"Lambda = {ArithmeticMean(lambdaNext1, lambdaNext2)}");
+                deltaLambdaMain = Math.Abs(lambdaNext1 - lambdaNext2);
+
+                lambdaPrev1 = lambdaNext1;
+                lambdaPrev2 = lambdaNext2;
+            } while (deltaLambdaMain > deviation);
+
+            Console.WriteLine($"\nLambda final = {ArithmeticMean(lambdaNext1, lambdaPrev2)}");
             var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
             var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
             Console.WriteLine($"\nReal values   = { string.Join("\t", eigValsA.Select(c => c))}");
