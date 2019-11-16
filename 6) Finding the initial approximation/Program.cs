@@ -90,8 +90,10 @@ namespace Finding_the_initial_approximation
             }
         }
 
-        public static void MV(Complex[,] B, out Complex[,] M, Complex[,] U, Complex[,] L, out Complex[,] V)
+        public static void MV(out Complex[,] M, Complex[,] U, Complex[,] L, out Complex[,] V)
         {
+            Complex[,] B = new Complex[n, n];
+            B.FillDiagonalComplex(Complex.One);
             M = new Complex[n, n];
             V = new Complex[n, n];
 
@@ -159,13 +161,10 @@ namespace Finding_the_initial_approximation
                 var lambda = center + spectralRadius;
 
                 Complex[,] D = GetMatrixD(GetMatrixA(), lambda);
-                Complex[,] B = new Complex[n, n];
-                B.FillDiagonalComplex(Complex.One);
-
                 Complex[,] L, U, M, V;
 
                 LU(D, out L, out U);
-                MV(B, out M, U, L, out V);
+                MV(out M, U, L, out V);
 
                 ///////////////First approach	
                 var determinant = Determinant(U);
