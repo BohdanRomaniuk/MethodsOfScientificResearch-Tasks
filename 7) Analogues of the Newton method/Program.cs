@@ -93,8 +93,10 @@ namespace _7__Analogues_of_the_Newton_method
 
         }
 
-        public static void MV(double[,] B, out double[,] M, double[,] U, double[,] L, out double[,] V)
+        public static void MV(out double[,] M, double[,] U, double[,] L, out double[,] V)
         {
+            var B = new double[n, n];
+            B.FillDiagonal(1);
             M = new double[n, n];
             V = new double[n, n];
 
@@ -158,19 +160,15 @@ namespace _7__Analogues_of_the_Newton_method
 
         private static void Approximation(double[,] A, double lambda1, double lambda2, out double deltaLambda1, out double deltaLambda2)
         {
-            var B = new double[n, n];
-            B.FillDiagonal(1);
-
+            //Delta lamdba 1 Begin
             var U = new double[n, n];
             var L = new double[n, n];
             var V = new double[n, n];
             var M = new double[n, n];
-            var W = new double[n, n];
 
-            //Delta lamdba 1 Begin
             var D = GetMatrixD(A, lambda1);
             LU(D, out L, out U);
-            MV(B, out M, U, L, out V);
+            MV(out M, U, L, out V);
             
             double sum = 0;
             for (int k = 0; k < n; ++k)
@@ -181,18 +179,15 @@ namespace _7__Analogues_of_the_Newton_method
             //Delta lamdba 1 End
 
             //Delta lamdba 2 Begin
-            B = new double[n, n];
-            B.FillDiagonal(1);
-
             U = new double[n, n];
             L = new double[n, n];
             V = new double[n, n];
             M = new double[n, n];
-            W = new double[n, n];
+            var W = new double[n, n];
 
             D = GetMatrixD(A, lambda2);
             LU(D, out L, out U);
-            MV(B, out M, U, L, out V);
+            MV(out M, U, L, out V);
             WN(L, U, M, V, out W);
 
             double sum1 = 0;

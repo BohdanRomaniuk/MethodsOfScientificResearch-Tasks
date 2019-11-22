@@ -89,8 +89,10 @@ namespace Calculation_of_exact_derivatives
             }
         }
 
-        public static void MV(double[,] B, out double[,] M, double[,] U, double[,] L, out double[,] V)
+        public static void MV(out double[,] M, double[,] U, double[,] L, out double[,] V)
         {
+            var B = new double[n, n];
+            B.FillDiagonal(1);
             M = new double[n, n];
             V = new double[n, n];
 
@@ -149,17 +151,13 @@ namespace Calculation_of_exact_derivatives
 
         private static double GetDeltaLambda(double[,] D, int n)
         {
-            var B = new double[n, n];
-            var C = new double[n, n];
-            B.FillDiagonal(1);
-
             var U = new double[n, n];
             var L = new double[n, n];
             var V = new double[n, n];
             var M = new double[n, n];
 
             LU(D, out L, out U);
-            MV(B, out M, U, L, out V);
+            MV(out M, U, L, out V);
 
             ///////////////First approach
             var f = Determinant(U);
