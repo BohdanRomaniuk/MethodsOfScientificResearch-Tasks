@@ -158,8 +158,82 @@ namespace _8__Analogues_of_the_Helli_Newton_method
             }
         }
 
+        private static void Approximation(double[,] A, double lambda, out double deltaLambda1, out double deltaLambda2)
+        {
+            //Delta lamdba 1 Begin
+            var U = new double[n, n];
+            var L = new double[n, n];
+            var V = new double[n, n];
+            var M = new double[n, n];
+            var W = new double[n, n];
+
+            var D = GetMatrixD(A, lambda);
+            LU(D, out L, out U);
+            MV(out M, U, L, out V);
+            WN(L, U, M, V, out W);
+
+            double sum1 = 0;
+            for (int k = 0; k < n; ++k)
+            {
+                sum1 += V[k, k] / U[k, k];
+            }
+            deltaLambda1 = 1 / sum1;
+            //Delta lamdba 1 End
+
+            //Delta lamdba 2 Begin
+            double sum2 = 0;
+            for (int k = 0; k < n; ++k)
+            {
+                sum2 += (V[k, k] / U[k, k]) * (V[k, k] / U[k, k]) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (deltaLambda1 - V[k, k] / U[k, k]);
+            }
+            deltaLambda2 = deltaLambda1 / sum2;
+            //Delta lamdba 2 end
+        }
+
+        public static double ArithmeticMean(double lambda1, double lambda2)
+        {
+            return (lambda1 + lambda2) / 2;
+        }
+
         static void Main(string[] args)
         {
+            left = 0;
+            right = 1;
+            n = 4;
+            h = (right - left) / (n - 1);
+            var deviation = 0.001;
+            var A = GetMatrixA();
+
+            double lambdaPrev = 32;
+            double lambdaNext = 0;
+            double deltaLambda1 = double.MaxValue;
+            double deltaLambda2 = double.MaxValue;
+
+            double m = 0;
+            double deltaLambdaMain = Math.Abs(lambdaPrev - m);
+
+            Console.WriteLine("First approach::::::::::::::::::::::::");
+            Console.WriteLine($"Lambda = {lambdaPrev}");
+            do
+            {
+                Approximation(A, lambdaPrev, out deltaLambda1, out deltaLambda2);
+           
+                m = lambdaPrev + 1/deltaLambda1;
+                lambdaNext = lambdaPrev + deltaLambda2;
+
+                Console.WriteLine($"Lambda = {lambdaNext}");
+                deltaLambdaMain = Math.Abs(lambdaNext - m);
+
+                lambdaPrev = lambdaNext;
+            } while (deltaLambdaMain > deviation);
+            Console.WriteLine($"Result = {ArithmeticMean(lambdaNext, m)}");
+
+            Console.WriteLine("\nExpected result::::::::::::::::::::::::");
+            var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
+            var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
+            Console.WriteLine($"Real values   = { string.Join("\t", eigValsA.Select(c => c))}");
+
+            Console.ReadKey();
         }
     }
 }
