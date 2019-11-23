@@ -15,7 +15,7 @@ namespace WeinsteinMethod
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
@@ -61,7 +61,7 @@ namespace WeinsteinMethod
             {
                 for (int j = 0; j < n; ++j)
                 {
-                    matrix[i, j] -= 0.05;
+                    matrix[i, j] -= 0.0375;
                 }
             }
             return matrix;
@@ -200,7 +200,7 @@ namespace WeinsteinMethod
         static void Main(string[] args)
         {
             left = 0;
-            right = 1;
+            right = 2;
             n = 4;
             h = (right - left) / (n - 1);
 

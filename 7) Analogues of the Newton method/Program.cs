@@ -16,7 +16,7 @@ namespace _7__Analogues_of_the_Newton_method
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
@@ -209,14 +209,14 @@ namespace _7__Analogues_of_the_Newton_method
         static void Main(string[] args)
         {
             left = 0;
-            right = 1;
+            right = 2;
             n = 4;
             h = (right - left) / (n - 1);
             var deviation = 0.00000001;
             var A = GetMatrixA();
 
-            double lambdaPrev1 = 32; //Initial left approximation
-            double lambdaPrev2 = 34; //Initial right approximation
+            double lambdaPrev1 = 0; //Initial left approximation
+            double lambdaPrev2 = 1; //Initial right approximation
 
             double lambdaNext1 = 0;
             double lambdaNext2 = 0;

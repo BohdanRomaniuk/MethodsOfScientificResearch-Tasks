@@ -16,7 +16,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         private static Vector GetInitialF()
@@ -48,6 +48,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
 
         private static double Integrate(Vector u, Vector v)
         {
+            //метод прямокутників
             double sum = 0;
             for (int i = 0; i < n; ++i)
             {
@@ -60,24 +61,24 @@ namespace Kolats_and_KrylovBogoliubov_methods
         {
             //Initialization
             left = 0;
-            right = 1;
+            right = 2;
             n = 4;
             h = (right - left) / (n - 1);
-            l2 = 34;
+            l2 = 1;
 
             //Iterations count
             int itersCount = 15;
 
             List<Vector> f = new List<Vector>();
             f.Add(GetInitialF());
-            var T = CreateMatrix(f[0]);
+            var A = CreateMatrix(f[0]);
 
-            Console.WriteLine("T matrix:\t\t\t\t\t\t\t F vector:");
+            Console.WriteLine("A matrix:\t\t\t\t\t\t\t F vector:");
             for (int i = 0; i < n; ++i)
             {
                 for (int j = 0; j < n; ++j)
                 {
-                    Console.Write($"{T[i, j],-5}{(j == n - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
+                    Console.Write($"{A[i, j],-5}{(j == n - 1 ? "\t\t\t" + f[0][i].ToString() : string.Empty)}");
                 }
                 Console.WriteLine();
             }
@@ -88,7 +89,7 @@ namespace Kolats_and_KrylovBogoliubov_methods
             for (int i = 0; i < itersCount - 1; ++i)
             {
                 var fCurrent = f.Last(); //fi-1
-                var fNext = T.Solve(fCurrent) as Vector; //fi
+                var fNext = A.Solve(fCurrent) as Vector; //fi
                 f.Add(fNext);
             }
 

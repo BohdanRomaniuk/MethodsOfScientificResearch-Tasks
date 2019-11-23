@@ -15,7 +15,7 @@ namespace Finding_the_initial_approximation
 
         private static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         private static Complex[] GetDiscreteFunction()
@@ -121,35 +121,6 @@ namespace Finding_the_initial_approximation
             }
         }
 
-        public static Complex Determinant(Complex[,] U)
-        {
-            var result = Complex.One;
-            for (int i = 0; i < U.GetLength(0); ++i)
-            {
-                result *= U[i, i];
-            }
-            return result;
-        }
-
-        public static Complex DeterminantDerivative(Complex[,] V, Complex[,] U)
-        {
-            var sum = Complex.Zero;
-            for (int k = 0; k < V.GetLength(0); ++k)
-            {
-                var product = Complex.One;
-                for (int i = 0; i < U.GetLength(0); ++i)
-                {
-                    if (i == k)
-                    {
-                        continue;
-                    }
-                    product *= U[i, i];
-                }
-                sum += V[k, k] * product;
-            }
-            return sum;
-        }
-
         //s0
         public static double RootsCount()
         {
@@ -165,19 +136,13 @@ namespace Finding_the_initial_approximation
 
                 LU(D, out L, out U);
                 MV(out M, U, L, out V);
-
-                ///////////////First approach	
-                var determinant = Determinant(U);
-                var determinantDerivative = DeterminantDerivative(V, U);
-                sum += spectralRadius * determinantDerivative / determinant;
-
-                ///////////////Second approach	
-                //Complex prodSum = 0;	
-                //for (int j = 0; j < n; ++j)	
-                //{	
-                //    prodSum += V[j, j] / U[j, j];	
-                //}	
-                //sum += spectralRadius * prodSum;
+                
+                Complex prodSum = 0;
+                for (int j = 0; j < n; ++j)
+                {
+                    prodSum += V[j, j] / U[j, j];
+                }
+                sum += spectralRadius * prodSum;
             }
 
             return Complex.Abs(sum / n);
@@ -196,10 +161,10 @@ namespace Finding_the_initial_approximation
         static void Main(string[] args)
         {
             left = 0.0;
-            right = 1.0;
+            right = 2.0;
             n = 4;
             h = (right - left) / (n - 1);
-            center = 32;
+            center = 0;
             radius = 1;
 
             double s0 = RootsCount();
