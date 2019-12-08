@@ -4,6 +4,8 @@ using System.Linq;
 namespace Analogues_of_the_Helli_Newton_method
 {
     using Helpers;
+    using System.Text;
+
     class Program
     {
         private static double left;
@@ -155,7 +157,7 @@ namespace Analogues_of_the_Helli_Newton_method
             }
         }
 
-        private static void Approximation1(double[,] A, double lambda, out double deltaLambda)
+        private static void FirstMethod(double[,] A, double lambda, out double deltaLambda)
         {
             var U = new double[n, n];
             var L = new double[n, n];
@@ -168,61 +170,57 @@ namespace Analogues_of_the_Helli_Newton_method
             MV(out M, U, L, out V);
             WN(L, U, M, V, out W);
 
-            double sum1 = 0;
-            double sum2 = 0;
+            double nominator = 0;
+            double denominator = 0;
             for (int k = 0; k < n; ++k)
             {
-                sum1 += V[k, k] / U[k, k];
-                sum2 += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
+                nominator += V[k, k] / U[k, k];
+                denominator += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
             }
-            deltaLambda = sum1 / sum2;
+            deltaLambda = nominator / denominator;
         }
 
-        private static void Approximation2(double[,] A, double lambda1, double lambda2, out double deltaLambda1, out double deltaLambda2)
+        private static void SecondMethod(double[,] A, double mu, double nu, out double deltaMu, out double deltaNu)
         {
-            //Delta lamdba 1 Begin
             var U = new double[n, n];
             var L = new double[n, n];
             var V = new double[n, n];
             var M = new double[n, n];
             var W = new double[n, n];
 
-            var D = GetMatrixD(A, lambda1);
+            var D = GetMatrixD(A, mu);
             LU(D, out L, out U);
             MV(out M, U, L, out V);
             WN(L, U, M, V, out W);
 
-            double sum1 = 0;
-            double sum2 = 0;
+            double nominator = 0;
+            double denominator = 0;
             for (int k = 0; k < n; ++k)
             {
-                sum1 += V[k, k] / U[k, k];
-                sum2 += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
+                nominator += V[k, k] / U[k, k];
+                denominator += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
             }
-            deltaLambda1 = sum1 / sum2;
-            //Delta lamdba 1 End
+            deltaMu = nominator / denominator;
 
-            //Delta lamdba 2 Begin
             U = new double[n, n];
             L = new double[n, n];
             V = new double[n, n];
             M = new double[n, n];
             W = new double[n, n];
 
-            D = GetMatrixD(A, lambda2);
+            D = GetMatrixD(A, nu);
             LU(D, out L, out U);
             MV(out M, U, L, out V);
             WN(L, U, M, V, out W);
 
-            sum1 = 0;
-            sum2 = 0;
+            nominator = 0;
+            denominator = 0;
             for (int k = 0; k < n; ++k)
             {
-                sum1 += V[k, k] / U[k, k];
-                sum2 += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
+                nominator += V[k, k] / U[k, k];
+                denominator += Math.Pow(V[k, k] / U[k, k], 2) - (0.5 * W[k, k] / U[k, k]) + (0.5 * V[k, k] / U[k, k]) * (V[k, k] / U[k, k]);
             }
-            deltaLambda2 = sum1 / sum2;
-            //Delta lamdba 2 end
+            deltaNu = nominator / denominator;
         }
 
         public static double ArithmeticMean(double lambda1, double lambda2)
@@ -232,6 +230,7 @@ namespace Analogues_of_the_Helli_Newton_method
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             left = 0;
             right = 1;
             n = 4;
@@ -241,56 +240,56 @@ namespace Analogues_of_the_Helli_Newton_method
 
             double lambdaPrev = 31;
             double lambdaNext = 0;
-            double deltaLambda = double.MaxValue;
+            double delta = double.MaxValue;
 
             double m = 0;
             double deltaLambdaMain = Math.Abs(lambdaPrev - m);
 
-            Console.WriteLine("First approach::::::::::::::::::::::::");
-            Console.WriteLine($"Lambda = {lambdaPrev}");
+            Console.WriteLine("Перший метод######################################");
+            Console.WriteLine($"λ = {lambdaPrev}");
             do
             {
-                Approximation1(A, lambdaPrev, out deltaLambda);
-                lambdaNext = lambdaPrev + deltaLambda;
+                FirstMethod(A, lambdaPrev, out delta);
+                lambdaNext = lambdaPrev + delta;
 
-                Console.WriteLine($"Lambda = {lambdaNext}");
+                Console.WriteLine($"λ = {lambdaNext}");
                 deltaLambdaMain = Math.Abs(lambdaNext - lambdaPrev);
                 lambdaPrev = lambdaNext;
             } while (deltaLambdaMain > deviation);
-            Console.WriteLine($"Result = {lambdaNext}");
+            Console.WriteLine($"Вiдповiдь = {lambdaNext}");
 
-            double lambdaPrev1 = 31; //Initial left approximation
-            double lambdaPrev2 = 34; //Initial right approximation
+            double muPrev = 31;
+            double nuPrev = 34;
 
-            double lambdaNext1 = 0;
-            double lambdaNext2 = 0;
+            double muNext = 0;
+            double nuNext = 0;
 
-            double deltaLambda1 = double.MaxValue;
-            double deltaLambda2 = double.MaxValue;
+            double deltaMu = double.MaxValue;
+            double deltaNu = double.MaxValue;
 
             deltaLambdaMain = double.MaxValue;
 
-            Console.WriteLine("\nSecond approach::::::::::::::::::::::::");
-            Console.WriteLine($"Lambda = {ArithmeticMean(lambdaPrev1, lambdaPrev2)}");
+            Console.WriteLine("\nДругий метод########################################");
+            Console.WriteLine($"λ = {ArithmeticMean(muPrev, nuPrev)}");
             do
             {
-                Approximation2(A, lambdaPrev1, lambdaPrev2, out deltaLambda1, out deltaLambda2);
+                SecondMethod(A, muPrev, nuPrev, out deltaMu, out deltaNu);
 
-                lambdaNext1 = lambdaPrev1 + deltaLambda1;
-                lambdaNext2 = lambdaPrev2 + deltaLambda2;
+                muNext = muPrev + deltaMu;
+                nuNext = nuPrev + deltaNu;
 
-                Console.WriteLine($"Lambda = {ArithmeticMean(lambdaNext1, lambdaNext2)}");
-                deltaLambdaMain = Math.Abs(lambdaNext1 - lambdaNext2);
+                Console.WriteLine($"λ = {ArithmeticMean(muNext, nuNext)}");
+                deltaLambdaMain = Math.Abs(muNext - nuNext);
 
-                lambdaPrev1 = lambdaNext1;
-                lambdaPrev2 = lambdaNext2;
+                muPrev = muNext;
+                nuPrev = nuNext;
             } while (deltaLambdaMain > deviation);
-            Console.WriteLine($"Result = {ArithmeticMean(lambdaNext1, lambdaPrev2)}");
+            Console.WriteLine($"Вiдповiдь = {ArithmeticMean(muNext, nuPrev)}");
 
-            Console.WriteLine("\nExpected result::::::::::::::::::::::::");
+            Console.WriteLine("\nОчiкуваний результат########################################");
             var decA = new Accord.Math.Decompositions.EigenvalueDecomposition(A, false, true);
             var eigValsA = decA.RealEigenvalues.OrderBy(c => c);
-            Console.WriteLine($"Real values   = { string.Join("\t", eigValsA.Select(c => c))}");
+            Console.WriteLine($"Справжнi значення   = { string.Join("\t", eigValsA.Select(c => c))}");
 
             Console.ReadKey();
         }
