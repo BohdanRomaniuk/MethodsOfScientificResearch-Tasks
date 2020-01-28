@@ -14,7 +14,7 @@ namespace FikerMethod
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
@@ -56,7 +56,7 @@ namespace FikerMethod
         static void Main(string[] args)
         {
             left = 0;
-            right = 1;
+            right = 2;
             n = 4;
             h = (right - left) / (n - 1);
             var A = GetMatrixA();

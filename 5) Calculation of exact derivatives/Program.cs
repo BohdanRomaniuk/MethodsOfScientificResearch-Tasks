@@ -14,7 +14,7 @@ namespace Calculation_of_exact_derivatives
 
         public static double F(double x)
         {
-            return (-1) * ((9 + x * x) * (9 + x * x));
+            return (-1) * ((1 + x * x) * (1 + x * x));
         }
 
         public static double[] GetDiscreteFunction()
@@ -120,35 +120,6 @@ namespace Calculation_of_exact_derivatives
             }
         }
 
-        public static double Determinant(double[,] U)
-        {
-            double result = 1;
-            for (int i = 0; i < U.GetLength(0); ++i)
-            {
-                result *= U[i, i];
-            }
-            return result;
-        }
-
-        public static double DeterminantDerivative(double[,] V, double[,] U)
-        {
-            var sum = 0.0;
-            for (int k = 0; k < V.GetLength(0); ++k)
-            {
-                double product = 1;
-                for (int i = 0; i < U.GetLength(0); ++i)
-                {
-                    if (i == k)
-                    {
-                        continue;
-                    }
-                    product *= U[i, i];
-                }
-                sum += V[k, k] * product;
-            }
-            return sum;
-        }
-
         private static double GetDeltaLambda(double[,] D, int n)
         {
             var U = new double[n, n];
@@ -159,32 +130,28 @@ namespace Calculation_of_exact_derivatives
             LU(D, out L, out U);
             MV(out M, U, L, out V);
 
-            ///////////////First approach
-            var f = Determinant(U);
-            var df = DeterminantDerivative(V, U);
-            return f / df;
 
-            //////////////Second approach
-            //double sum = 0;	
-            //for (int i = 0; i < n; ++i)	
-            //{	
-            //    sum += V[i, i] / U[i, i];	
-            //}	
+            ////////////Second approach
+            double sum = 0;
+            for (int i = 0; i < n; ++i)
+            {
+                sum += V[i, i] / U[i, i];
+            }
 
-            ////Delta lamdba	
-            //return 1 / sum;
+            //Delta lamdba	
+            return 1 / sum;
         }
 
         static void Main(string[] args)
         {
             left = 0;
-            right = 1;
+            right = 2;
             n = 4;
             h = (right - left) / (n - 1);
             var deviation = 0.00000001;
             var A = GetMatrixA();
 
-            double lambdaPrev = 32; //Initial approach
+            double lambdaPrev = 1; //Initial approach
             double lambdaNext = 0;
             double deltaLambda = double.MaxValue;
 
